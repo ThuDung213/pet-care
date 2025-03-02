@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:pet_care/routes/app_router.dart';
 import 'firebase_options.dart';
-import 'routes/app_router.dart';
 
 
 void main() async {
@@ -13,8 +13,6 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final AppRouter appRouter = AppRouter();
-
   MyApp({super.key});
 
   @override
@@ -24,8 +22,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      onGenerateRoute: appRouter.onGenerateRoute,
-      initialRoute: '/auth'
+      initialRoute: AppRoutes.login,
+      onGenerateRoute: AppRoutes.generateRoute,
     );
   }
 }
