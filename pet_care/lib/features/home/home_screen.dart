@@ -17,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _screens = [
     HomeMainScreen(),
-    Center(child: Text('Đặt lịch')),  // Placeholder cho các tab khác
+    Center(child: Text('Đặt lịch')),
     Center(child: Text('Hồ sơ')),
     Center(child: Text('Chat')),
     AccountScreen()

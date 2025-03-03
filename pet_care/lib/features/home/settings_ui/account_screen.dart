@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pet_care/features/auth/login_screen.dart';
-
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -12,6 +12,86 @@ class AccountScreen extends StatefulWidget {
 
 class _AccountScreenState extends State<AccountScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  User? user;
+  String userName = "";
+  String userEmail = "";
+  String userPhone = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() async {
+    user = _auth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await _firestore.collection("users").doc(user!.uid).get();
+      if (userDoc.exists) {
+        setState(() {
+          userName = userDoc["name"] ?? "No name";
+          userEmail = userDoc["email"] ?? "No email";
+          userPhone = userDoc["phone"] ?? "No phone";
+        });
+      }
+    }
+  }
+
+  void _updateUserData(String newName, String newPhone) async {
+    if (user != null) {
+      await _firestore.collection("users").doc(user!.uid).update({
+        "name": newName,
+        "phone": newPhone,
+      });
+      setState(() {
+        userName = newName;
+        userPhone = newPhone;
+      });
+    }
+  }
+
+  void _showEditDialog() {
+    TextEditingController nameController = TextEditingController(text: userName);
+    TextEditingController phoneController = TextEditingController(text: userPhone);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Chỉnh sửa thông tin"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: "Tên"),
+              ),
+              TextField(
+                controller: phoneController,
+                decoration: const InputDecoration(labelText: "Số điện thoại"),
+                keyboardType: TextInputType.phone,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Hủy"),
+            ),
+            TextButton(
+              onPressed: () {
+                _updateUserData(nameController.text.trim(), phoneController.text.trim());
+                Navigator.of(context).pop();
+              },
+              child: const Text("Lưu"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _showSignOutDialog() {
     showDialog(
@@ -23,18 +103,17 @@ class _AccountScreenState extends State<AccountScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: const Text("Hủy"),
             ),
             TextButton(
               onPressed: () async {
-                await _auth.signOut(); // Sign out the user
-                Navigator.of(context).pop(); // Close the dialog
-                Navigator.of(context).push(
+                await _auth.signOut();
+                Navigator.of(context).pop();
+                Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (context) => LoginScreen()),
                 );
-// Redirect to login page
               },
               child: const Text(
                 "Đăng xuất",
@@ -47,13 +126,11 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
-    User? user = _auth.currentUser;
-
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           "Tài khoản",
           style: TextStyle(fontWeight: FontWeight.bold),
@@ -61,10 +138,12 @@ class _AccountScreenState extends State<AccountScreen> {
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit, color: Colors.blue),
+            onPressed: _showEditDialog,
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -73,24 +152,16 @@ class _AccountScreenState extends State<AccountScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-
-              // Profile Image
               const CircleAvatar(
                 radius: 100,
                 backgroundImage: AssetImage("assets/profile.jpg"),
               ),
-
               const SizedBox(height: 15),
-
-              // Name
               Text(
-                user?.displayName ?? "No name",
+                userName,
                 style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
               ),
-
               const SizedBox(height: 20),
-
-              // Email & Phone Container
               Container(
                 padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
@@ -109,20 +180,17 @@ class _AccountScreenState extends State<AccountScreen> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.email, color: Colors.black),
-                      title: const Text("nguyenvana@gmail.com"),
+                      title: Text(userEmail),
                     ),
                     const Divider(),
                     ListTile(
                       leading: const Icon(Icons.phone, color: Colors.black),
-                      title: const Text("0122 233 444"),
+                      title: Text(userPhone),
                     ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 60),
-
-              // Logout Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

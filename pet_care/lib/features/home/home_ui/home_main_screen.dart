@@ -19,6 +19,7 @@ class _HomeScreenState extends State<HomeMainScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
         title: Row(
