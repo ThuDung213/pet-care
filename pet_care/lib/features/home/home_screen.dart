@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pet_care/features/home/home_ui/home_main_screen.dart';
+import 'package:pet_care/features/home/settings_ui/account_screen.dart';
 
 import '../../widgets/bottom_nav_bar.dart';
-import 'home_widgets/home_main_page.dart';
+
 
 
 
@@ -13,12 +15,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [
-    HomeMainPage(),
+  final List<Widget> _screens = [
+    HomeMainScreen(),
     Center(child: Text('Đặt lịch')),  // Placeholder cho các tab khác
     Center(child: Text('Hồ sơ')),
     Center(child: Text('Chat')),
-    Center(child: Text('Tài khoản')),
+    AccountScreen()
   ];
 
   void _onItemTapped(int index) {
@@ -32,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: AnimatedSwitcher(
         duration: Duration(milliseconds: 300),
-        child: _pages[_selectedIndex],
+        child: _screens[_selectedIndex],
         transitionBuilder: (Widget child, Animation<double> animation) {
           return FadeTransition(
             opacity: animation,
