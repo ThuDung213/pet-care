@@ -1,0 +1,198 @@
+import 'package:flutter/material.dart';
+import 'package:pet_care/data/model/pet_list.dart';
+import 'package:pet_care/data/repositories/pet_repository.dart';
+import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/PetBreedSelectionScreen/pet_name_screen/pet_weight_screen/SpecialCharacteristicsScreen/SpecialDayScreen/CaretakerScreen/CompleteProfileScreen/PetProfileScreen/PetProfileScreen.dart';
+import 'package:pet_care/widgets/bottom_nav_bar.dart';
+import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/add_pet_screen.dart';
+
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  int selectedIndex = 2;
+  final petRepo = PetRepository();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: AssetImage('assets/avata.png'),
+              radius: 20,
+            ),
+            SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Hello,", style: TextStyle(color: Colors.black54, fontSize: 14)),
+                Text(
+                  "nguyenvana@gmail.com",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      body: StreamBuilder<List<PetModel>>(
+        stream: petRepo.getAllPets(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(child: Text("Lỗi: ${snapshot.error}"));
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final petList = snapshot.data ?? [];
+          if (petList.isEmpty) {
+            return _buildNoPetUI(context);
+          }
+
+          return Stack(
+            children: [
+              ListView.builder(
+                itemCount: petList.length,
+                padding: const EdgeInsets.only(bottom: 80),
+                itemBuilder: (context, index) {
+                  final pet = petList[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PetProfileScreen(petId: pet.docId),
+                        ),
+                      );
+                    },
+                    child: _buildPetItem(context, pet),
+                  );
+                },
+              ),
+              Positioned(
+                bottom: 70,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AddPetScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: Color(0xFF254EDB)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(horizontal: 140, vertical: 15),
+                    ),
+                    child: const Text(
+                      "+ Thêm hồ sơ",
+                      style: TextStyle(color: Color(0xFF254EDB), fontSize: 16),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: selectedIndex,
+        onItemTapped: (index) {
+          setState(() {
+            selectedIndex = index;
+          });
+
+          switch (index) {
+            case 0:
+              Navigator.pushReplacementNamed(context, '/home');
+              break;
+            case 1:
+              Navigator.pushReplacementNamed(context, '/');
+              break;
+            case 2:
+              Navigator.pushReplacementNamed(context, '/profile_screen');
+              break;
+            case 3:
+              Navigator.pushReplacementNamed(context, '/');
+              break;
+            case 4:
+              Navigator.pushReplacementNamed(context, '/AccountScreen');
+              break;
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildNoPetUI(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset('assets/no_pet_profile.png', width: 300),
+          const SizedBox(height: 20),
+          const Text(
+            "Chưa có hồ sơ thú cưng",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            "Bạn chưa tạo lập hồ sơ thú cưng.\nẤn Tiếp tục để cập nhật thông tin của con nhé!",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16, color: Colors.black54),
+          ),
+          const SizedBox(height: 250),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddPetScreen()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              side: const BorderSide(color: Color(0xFF254EDB)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              padding: const EdgeInsets.symmetric(horizontal: 140, vertical: 15),
+            ),
+            child: const Text(
+              "+ Thêm hồ sơ",
+              style: TextStyle(color: Color(0xFF254EDB), fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPetItem(BuildContext context, PetModel pet) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundImage: pet.imageUrl.isNotEmpty
+            ? NetworkImage(pet.imageUrl)
+            : const AssetImage('assets/dog_avatar.png') as ImageProvider,
+      ),
+      title: Text(pet.petName, style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text(pet.petBreed),
+      trailing: IconButton(
+        icon: const Icon(Icons.delete, color: Colors.red),
+        onPressed: () async {
+          await petRepo.deletePet(pet.docId);
+        },
+      ),
+    );
+  }
+}

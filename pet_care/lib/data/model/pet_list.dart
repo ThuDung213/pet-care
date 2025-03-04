@@ -1,0 +1,32 @@
+class PetModel {
+  final String docId;
+  final String petName;
+  final String petBreed;
+  final String imageUrl;
+
+  PetModel({
+    required this.docId,
+    required this.petName,
+    required this.petBreed,
+    required this.imageUrl,
+  });
+
+  // Chuyển đổi từ Map (Firestore) sang Object
+  factory PetModel.fromMap(String id, Map<String, dynamic> data) {
+    return PetModel(
+      docId: id,
+      petName: data['petName'] ?? '',
+      petBreed: data['petBreed'] ?? '',
+      imageUrl: data['imageUrl'] ?? '',
+    );
+  }
+
+  // Chuyển đổi từ Object sang Map (để lưu vào Firestore)
+  Map<String, dynamic> toMap() {
+    return {
+      'petName': petName,
+      'petBreed': petBreed,
+      'imageUrl': imageUrl,
+    };
+  }
+}

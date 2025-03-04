@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pet_care/features/home/home_ui/home_main_screen.dart';
+import 'package:pet_care/features/home/pet_profile_ui/profile_screen.dart';
 import 'package:pet_care/features/home/settings_ui/account_screen.dart';
 
 import '../../widgets/bottom_nav_bar.dart';
-
-
-
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -18,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = [
     HomeMainScreen(),
     Center(child: Text('Đặt lịch')),
-    Center(child: Text('Hồ sơ')),
+    ProfileScreen(),
     Center(child: Text('Chat')),
     AccountScreen()
   ];
@@ -42,10 +40,12 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
+      bottomNavigationBar: _selectedIndex == 2 || _selectedIndex == 4
+          ? null
+          : BottomNavBar(
+              selectedIndex: _selectedIndex,
+              onItemTapped: _onItemTapped,
+            ),
     );
   }
 }
