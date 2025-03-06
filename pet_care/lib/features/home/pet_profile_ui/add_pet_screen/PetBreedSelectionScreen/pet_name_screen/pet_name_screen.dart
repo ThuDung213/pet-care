@@ -48,11 +48,11 @@ class _PetNameScreenState extends State<PetNameScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 50),
+            const SizedBox(height: 19),
             _buildImagePicker(),
-            const SizedBox(height: 10),
-            Text(widget.petBreed, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 45),
+            const SizedBox(height: 5),
+            Text(widget.petBreed, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 30),
             _buildTextField(),
             const Spacer(),
           ],
@@ -71,10 +71,10 @@ class _PetNameScreenState extends State<PetNameScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => PetWeightScreen(
-                        petType: widget.petType,  
-                        petBreed: widget.petBreed, 
-                        image: _image!,                
-                        petName: _nameController.text,  
+                        petType: widget.petType,
+                        petBreed: widget.petBreed,
+                        image: _image!,
+                        petName: _nameController.text,
                       ),
                     ),
                   );
@@ -85,7 +85,7 @@ class _PetNameScreenState extends State<PetNameScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF254EDB),
                   disabledBackgroundColor: Colors.grey.shade300,
-                  padding: const EdgeInsets.symmetric(vertical: 15), 
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 child: const Text("Tiếp tục", style: TextStyle(color: Colors.white, fontSize: 16)),

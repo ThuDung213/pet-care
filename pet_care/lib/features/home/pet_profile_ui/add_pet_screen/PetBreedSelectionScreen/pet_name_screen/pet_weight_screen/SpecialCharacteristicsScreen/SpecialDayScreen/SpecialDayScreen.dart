@@ -63,16 +63,16 @@ class _SpecialDayScreenState extends State<SpecialDayScreen> {
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 50),
+            const SizedBox(height: 20),
             CircleAvatar(
-              radius: 100,
+              radius: 80,
               backgroundImage: FileImage(widget.image),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             GestureDetector(
               onTap: () => _selectDate(context, true),
               child: ListTile(

@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pet_care/data/model/add_pet.dart';
 
 class CompleteProfileRepository {
-  /// Hàm thực hiện quá trình hoàn tất hồ sơ: upload ảnh và lưu dữ liệu
+  /// Hoàn tất hồ sơ thú cưng: Upload ảnh và lưu dữ liệu
   Future<String?> completeProfile({
     required BuildContext context,
     required String petType,
@@ -20,6 +21,16 @@ class CompleteProfileRepository {
     required String ownerPhone,
     required String ownerAddress,
   }) async {
+    // Lấy userId của người dùng đang đăng nhập
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Bạn chưa đăng nhập!")),
+      );
+      return null;
+    }
+    String userId = user.uid;
+
     // Upload ảnh lên Imgur
     String? imageUrl = await PetDataService.uploadImageToImgur(image);
     if (imageUrl == null) {
@@ -29,7 +40,7 @@ class CompleteProfileRepository {
       return null;
     }
 
-    // Lưu hồ sơ và lấy về petId
+    // Lưu hồ sơ thú cưng và lấy về petId
     String? petId = await PetDataService.saveAndGetPetId(
       petType: petType,
       petBreed: petBreed,
@@ -44,6 +55,7 @@ class CompleteProfileRepository {
       ownerPhone: ownerPhone,
       ownerAddress: ownerAddress,
       imageUrl: imageUrl,
+      userId: userId,
     );
 
     if (petId == null) {

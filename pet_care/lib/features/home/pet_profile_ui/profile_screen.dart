@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pet_care/data/model/pet_list.dart';
 import 'package:pet_care/data/repositories/pet_repository.dart';
+import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/add_pet_screen.dart';
 import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/PetBreedSelectionScreen/pet_name_screen/pet_weight_screen/SpecialCharacteristicsScreen/SpecialDayScreen/CaretakerScreen/CompleteProfileScreen/PetProfileScreen/PetProfileScreen.dart';
 import 'package:pet_care/widgets/bottom_nav_bar.dart';
-import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/add_pet_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,6 +16,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   int selectedIndex = 2;
   final petRepo = PetRepository();
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -24,89 +26,89 @@ class _ProfileScreenState extends State<ProfileScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Row(
+        title: Row(
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               backgroundImage: AssetImage('assets/avata.png'),
               radius: 20,
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Hello,", style: TextStyle(color: Colors.black54, fontSize: 14)),
+                const Text("Hello,", style: TextStyle(color: Colors.black54, fontSize: 14)),
                 Text(
-                  "nguyenvana@gmail.com",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  user?.email ?? "Chưa đăng nhập",
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ],
             ),
           ],
         ),
       ),
-      body: StreamBuilder<List<PetModel>>(
-        stream: petRepo.getAllPets(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text("Lỗi: ${snapshot.error}"));
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Column(
+        children: [
+          Expanded(
+            child: StreamBuilder<List<PetModel>>(
+              stream: petRepo.getUserPets(user?.uid ?? ""),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text("Lỗi: ${snapshot.error}"));
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          final petList = snapshot.data ?? [];
-          if (petList.isEmpty) {
-            return _buildNoPetUI(context);
-          }
+                final petList = snapshot.data ?? [];
+                if (petList.isEmpty) {
+                  return _buildNoPetUI();
+                }
 
-          return Stack(
-            children: [
-              ListView.builder(
-                itemCount: petList.length,
-                padding: const EdgeInsets.only(bottom: 80),
-                itemBuilder: (context, index) {
-                  final pet = petList[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PetProfileScreen(petId: pet.docId),
-                        ),
-                      );
-                    },
-                    child: _buildPetItem(context, pet),
+                return ListView.builder(
+                  itemCount: petList.length,
+                  padding: const EdgeInsets.only(bottom: 20),
+                  itemBuilder: (context, index) {
+                    final pet = petList[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PetProfileScreen(petId: pet.docId),
+                          ),
+                        );
+                      },
+                      child: _buildPetItem(context, pet),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AddPetScreen()),
                   );
                 },
-              ),
-              Positioned(
-                bottom: 70,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const AddPetScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      side: const BorderSide(color: Color(0xFF254EDB)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(horizontal: 140, vertical: 15),
-                    ),
-                    child: const Text(
-                      "+ Thêm hồ sơ",
-                      style: TextStyle(color: Color(0xFF254EDB), fontSize: 16),
-                    ),
-                  ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  side: const BorderSide(color: Color(0xFF254EDB)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
+                ),
+                child: const Text(
+                  "+ Thêm hồ sơ",
+                  style: TextStyle(color: Color(0xFF254EDB), fontSize: 16),
                 ),
               ),
-            ],
-          );
-        },
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavBar(
         selectedIndex: selectedIndex,
@@ -137,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildNoPetUI(BuildContext context) {
+  Widget _buildNoPetUI() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -153,25 +155,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             "Bạn chưa tạo lập hồ sơ thú cưng.\nẤn Tiếp tục để cập nhật thông tin của con nhé!",
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 16, color: Colors.black54),
-          ),
-          const SizedBox(height: 250),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddPetScreen()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              side: const BorderSide(color: Color(0xFF254EDB)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              padding: const EdgeInsets.symmetric(horizontal: 140, vertical: 15),
-            ),
-            child: const Text(
-              "+ Thêm hồ sơ",
-              style: TextStyle(color: Color(0xFF254EDB), fontSize: 16),
-            ),
           ),
         ],
       ),

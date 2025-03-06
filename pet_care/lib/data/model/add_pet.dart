@@ -34,9 +34,9 @@ class PetDataService {
     }
   }
 
-  /// Lưu thông tin thú cưng lên Firebase (collection 'pets') với trường id được lưu
-  /// và trả về id của document vừa tạo.
+  /// Lưu thông tin thú cưng lên Firebase với `userId` để biết ai là chủ.
   static Future<String?> saveAndGetPetId({
+    required String userId,
     required String petType,
     required String petBreed,
     required String petName,
@@ -55,6 +55,7 @@ class PetDataService {
       DocumentReference docRef = FirebaseFirestore.instance.collection("pets").doc();
       await docRef.set({
         "id": docRef.id,
+        "userId": userId,
         "petType": petType,
         "petBreed": petBreed,
         "petName": petName,

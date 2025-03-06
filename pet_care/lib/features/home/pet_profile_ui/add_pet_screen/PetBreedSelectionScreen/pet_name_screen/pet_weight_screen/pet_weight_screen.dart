@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/PetBreedSelectionScreen/pet_name_screen/pet_weight_screen/SpecialCharacteristicsScreen/SpecialCharacteristicsScreen.dart';
 import 'package:pet_care/widgets/bottom_nav_bar.dart';
 
-
 class PetWeightScreen extends StatefulWidget {
   final String petType;
   final String petBreed;
@@ -28,32 +27,38 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
   String? _selectedGender;
   int selectedIndex = 2;
 
-  bool get _isButtonEnabled => _weightController.text.isNotEmpty && _selectedSize != null && _selectedGender != null;
+  bool get _isButtonEnabled =>
+      _weightController.text.isNotEmpty &&
+          _selectedSize != null &&
+          _selectedGender != null;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 50),
+            const SizedBox(height: 20),
             CircleAvatar(
-              radius: 100,
+              radius: 80,
               backgroundImage: FileImage(widget.image),
             ),
             const SizedBox(height: 20),
-            Text(widget.petType, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              widget.petType,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 30),
             _buildWeightTextField(),
             const SizedBox(height: 20),
             _buildSizeDropdown(),
             const SizedBox(height: 20),
             _buildGenderSelector(),
-            const Spacer(),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -65,7 +70,8 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isButtonEnabled ? () {
+                onPressed: _isButtonEnabled
+                    ? () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -80,14 +86,19 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
                       ),
                     ),
                   );
-                } : null,
+                }
+                    : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF254EDB),
                   disabledBackgroundColor: Colors.grey.shade300,
                   padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text("Tiếp tục", style: TextStyle(color: Colors.white, fontSize: 16)),
+                child: const Text(
+                  "Tiếp tục",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
               ),
             ),
           ),
@@ -102,22 +113,21 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
               // Điều hướng đến màn hình tương ứng
               switch (index) {
                 case 0:
-                  Navigator.pushReplacementNamed(context, '/home'); // Trang chủ
+                  Navigator.pushReplacementNamed(context, '/home');
                   break;
                 case 1:
-                  Navigator.pushReplacementNamed(context, '/'); // Đặt lịch
+                  Navigator.pushReplacementNamed(context, '/');
                   break;
                 case 2:
-                  Navigator.pushReplacementNamed(context, '/profile_screen'); // Hồ sơ (màn hình hiện tại)
+                  Navigator.pushReplacementNamed(context, '/profile_screen');
                   break;
                 case 3:
-                  Navigator.pushReplacementNamed(context, '/'); // Chat
+                  Navigator.pushReplacementNamed(context, '/');
                   break;
                 case 4:
-                  Navigator.pushReplacementNamed(context, '/AccountScreen'); // Tài khoản
+                  Navigator.pushReplacementNamed(context, '/AccountScreen');
                   break;
               }
-
             },
           ),
         ],
@@ -134,13 +144,15 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
         centerTitle: true,
         title: const Text(
           "Hồ sơ thú cưng",
-          style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
         ),
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 16.0),
             child: Center(
-              child: Text("Bước 4/7", style: TextStyle(color: Colors.black, fontSize: 14)),
+              child: Text("Bước 4/7",
+                  style: TextStyle(color: Colors.black, fontSize: 14)),
             ),
           ),
         ],
@@ -194,7 +206,8 @@ class _PetWeightScreenState extends State<PetWeightScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Chọn giới tính", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        const Text("Chọn giới tính",
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         Row(
           children: [
             Radio<String>(

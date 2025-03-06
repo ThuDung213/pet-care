@@ -75,40 +75,40 @@ class _AddPetScreenState extends State<AddPetScreen> {
         ),
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center, // Căn giữa nội dung theo chiều dọc
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 300), // Tăng khoảng cách phần trên
           const Text(
             "Chọn loại thú cưng",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black87),
           ),
-          const SizedBox(height: 40), // Tăng khoảng cách giữa tiêu đề và lựa chọn pet
+          const SizedBox(height: 40),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               petTypeCard("Mèo", "assets/cat.png"),
-              const SizedBox(width: 20), // Giữ khoảng cách giữa 2 pet
+              const SizedBox(width: 20),
               petTypeCard("Chó", "assets/dog.png"),
             ],
           ),
-          const SizedBox(height: 60), // Giữ khoảng cách nút bấm giống ảnh
+          const SizedBox(height: 40),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ElevatedButton(
               onPressed: selectedPetType.isEmpty
                   ? null
                   : () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PetBreedSelectionScreen(selectedPetType: selectedPetType),
-                        ),
-                      );
-                    },
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PetBreedSelectionScreen(selectedPetType: selectedPetType),
+                  ),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF254EDB),
                 disabledBackgroundColor: Colors.grey.shade300,
-                padding: const EdgeInsets.symmetric(horizontal: 150, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text("Tiếp tục", style: TextStyle(color: Colors.white, fontSize: 16)),
