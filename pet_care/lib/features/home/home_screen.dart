@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pet_care/features/home/booking_ui/booking_screen.dart';
 import 'package:pet_care/features/home/home_ui/home_main_screen.dart';
 import 'package:pet_care/features/home/pet_profile_ui/profile_screen.dart';
 import 'package:pet_care/features/home/settings_ui/account_screen.dart';
@@ -15,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _screens = [
     HomeMainScreen(),
-    Center(child: Text('Đặt lịch')),
+    BookingScreen(),
     ProfileScreen(),
     Center(child: Text('Chat')),
     AccountScreen()
@@ -40,12 +41,10 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      bottomNavigationBar: _selectedIndex == 2 || _selectedIndex == 4
-          ? null
-          : BottomNavBar(
-              selectedIndex: _selectedIndex,
-              onItemTapped: _onItemTapped,
-            ),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
+      ),
     );
   }
 }

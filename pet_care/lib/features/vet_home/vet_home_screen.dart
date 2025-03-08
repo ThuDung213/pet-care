@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pet_care/features/vet_home/setting_ui/vet_account_screen.dart';
+import 'package:pet_care/features/vet_home/vet_booking_ui/vet_booking_screen.dart';
 import 'package:pet_care/features/vet_home/vet_home_ui/vet_home_main_screen.dart';
 
 import '../../widgets/bottom_nav_bar.dart';
@@ -19,7 +20,7 @@ class _HomeScreenState extends State<VetHomeScreen> {
 
   final List<Widget> _screens = [
     VetHomeMainScreen(),
-    Center(child: Text('Đặt lịch')),  // Placeholder cho các tab khác
+    VetBookingScreen(),// Placeholder cho các tab khác
     Center(child: Text('Hồ sơ')),
     Center(child: Text('Chat')),
     VetAccountScreen(),

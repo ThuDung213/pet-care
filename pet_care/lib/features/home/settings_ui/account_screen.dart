@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pet_care/features/auth/login_screen.dart';
-import 'package:pet_care/widgets/bottom_nav_bar.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});

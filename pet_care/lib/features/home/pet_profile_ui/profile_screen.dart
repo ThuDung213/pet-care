@@ -14,7 +14,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  int selectedIndex = 2;
   final petRepo = PetRepository();
   final user = FirebaseAuth.instance.currentUser;
 
@@ -30,13 +29,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             const CircleAvatar(
               backgroundImage: AssetImage('assets/avata.png'),
-              radius: 20,
+              radius: 20, // Đảm bảo bán kính giống với BookingScreen
             ),
             const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Hello,", style: TextStyle(color: Colors.black54, fontSize: 14)),
+                const Text(
+                  "Hello,",
+                  style: TextStyle(color: Colors.black54, fontSize: 14),
+                ),
                 Text(
                   user?.email ?? "Chưa đăng nhập",
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -45,6 +47,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications), // Thêm biểu tượng thông báo
+            onPressed: () {
+              // Xử lý khi nhấn vào thông báo
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -110,32 +120,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: selectedIndex,
-        onItemTapped: (index) {
-          setState(() {
-            selectedIndex = index;
-          });
-
-          switch (index) {
-            case 0:
-              Navigator.pushReplacementNamed(context, '/home');
-              break;
-            case 1:
-              Navigator.pushReplacementNamed(context, '/');
-              break;
-            case 2:
-              Navigator.pushReplacementNamed(context, '/profile_screen');
-              break;
-            case 3:
-              Navigator.pushReplacementNamed(context, '/');
-              break;
-            case 4:
-              Navigator.pushReplacementNamed(context, '/AccountScreen');
-              break;
-          }
-        },
-      ),
     );
   }
 
@@ -167,9 +151,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundImage: pet.imageUrl.isNotEmpty
             ? NetworkImage(pet.imageUrl)
             : const AssetImage('assets/dog_avatar.png') as ImageProvider,
+        radius: 25, // Điều chỉnh kích thước avatar
       ),
-      title: Text(pet.petName, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text(pet.petBreed),
+      title: Text(
+        pet.petName,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      ),
+      subtitle: Text(
+        pet.petBreed,
+        style: const TextStyle(fontSize: 14, color: Colors.black54),
+      ),
       trailing: IconButton(
         icon: const Icon(Icons.delete, color: Colors.red),
         onPressed: () async {

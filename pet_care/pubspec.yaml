@@ -40,7 +40,7 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   image_picker: ^1.1.2
   intl: ^0.18.0
-   
+  page_transition: ^2.2.1
 
 dev_dependencies:
   flutter_test:
