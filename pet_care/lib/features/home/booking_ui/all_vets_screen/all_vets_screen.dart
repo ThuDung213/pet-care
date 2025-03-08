@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../../../widgets/vet_booking_card.dart';
 
 class AllVetsScreen extends StatelessWidget {
@@ -11,34 +10,7 @@ class AllVetsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            CircleAvatar(
-              backgroundImage: NetworkImage('https://via.placeholder.com/150'),
-              radius: 20,
-            ),
-            SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Hello',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-                Text(
-                  'Programmer',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        title: Text("Danh sách bác sĩ thú y"),
         actions: [
           IconButton(
             icon: Icon(Icons.notifications),
@@ -48,7 +20,9 @@ class AllVetsScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: vets.isEmpty
+          ? Center(child: Text("Không có bác sĩ thú y nào."))
+          : SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -66,20 +40,21 @@ class AllVetsScreen extends StatelessWidget {
               SizedBox(height: 20),
               Text(
                 'Danh sách bác sĩ thú y',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style:
+                TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
               Column(
                 children: vets.map((vet) {
                   return VetBookingCard(
-                    name: vet['name'],
-                    specialty: vet['specialty'],
-                    rating: vet['rating'],
-                    image: vet['image'],
-                    petType: vet['specialty'].contains('chó') ? 'Chó' : 'Mèo',
+                    name: vet['name'] ?? "Không có tên",
+                    specialty: vet['specialization'] ?? "Không xác định",
+                    rating: vet['rating'] ?? 0.0,
+                    image: vet['avatar'] ?? "https://via.placeholder.com/150",
+                    petType: (vet['specialization']?.contains('chó') ?? false)
+                        ? 'Chó'
+                        : 'Mèo',
+                    isAvailable: vet['isAvailable'] ?? true,
                   );
                 }).toList(),
               ),

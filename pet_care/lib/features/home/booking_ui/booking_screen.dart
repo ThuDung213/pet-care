@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pet_care/widgets/vet_booking_card.dart';
-
+import 'package:page_transition/page_transition.dart';
+import 'package:pet_care/features/home/booking_ui/set_booking_date_screen/set_booking_date_screen.dart';
+import '../../../data/repositories/vet_repository.dart';
 import '../../../widgets/specialization_button.dart';
+import '../../../widgets/vet_booking_card.dart';
 import 'all_vets_screen/all_vets_screen.dart';
-
 
 class BookingScreen extends StatefulWidget {
   @override
@@ -11,37 +12,27 @@ class BookingScreen extends StatefulWidget {
 }
 
 class _BookingScreenState extends State<BookingScreen> {
-  final List<Map<String, dynamic>> allVets = [
-    {
-      'name': 'Dr. Nguyễn Văn A',
-      'specialty': 'Chuyên gia về chó',
-      'rating': 4.9,
-      'image': 'https://via.placeholder.com/150',
-    },
-    {
-      'name': 'Dr. Trần Thị B',
-      'specialty': 'Chuyên gia về mèo',
-      'rating': 4.8,
-      'image': 'https://via.placeholder.com/150',
-    },
-    {
-      'name': 'Dr. Lê Văn C',
-      'specialty': 'Chuyên gia về chó',
-      'rating': 4.7,
-      'image': 'https://via.placeholder.com/150',
-    },
-    {
-      'name': 'Dr. Phạm Thị D',
-      'specialty': 'Chuyên gia về mèo',
-      'rating': 4.6,
-      'image': 'https://via.placeholder.com/150',
-    },
-  ];
+  final VetRepository _vetRepository = VetRepository();
+  List<Map<String, dynamic>> _vets = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchVets();
+  }
+
+  /// **Lấy danh sách bác sĩ thú y từ Firestore**
+  void _fetchVets() async {
+    List<Map<String, dynamic>> vets = await _vetRepository.getAllVets();
+    setState(() {
+      _vets = vets;
+      _isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final displayedVets = allVets.take(3).toList(); // Chỉ hiển thị 3 bác sĩ thú y ban đầu
-
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -56,17 +47,11 @@ class _BookingScreenState extends State<BookingScreen> {
               children: [
                 Text(
                   'Hello',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 Text(
                   'Programmer',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -81,7 +66,9 @@ class _BookingScreenState extends State<BookingScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -99,25 +86,14 @@ class _BookingScreenState extends State<BookingScreen> {
               SizedBox(height: 20),
               Text(
                 'Chuyên môn của bác sĩ thú y',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  SpecializationButton(
-                    icon: Icons.pets,
-                    label: 'Chó',
-                    color: Colors.blue,
-                  ),
-                  SpecializationButton(
-                    icon: Icons.pets,
-                    label: 'Mèo',
-                    color: Colors.orange,
-                  ),
+                  SpecializationButton(icon: Icons.pets, label: 'Chó', color: Colors.blue),
+                  SpecializationButton(icon: Icons.pets, label: 'Mèo', color: Colors.orange),
                 ],
               ),
               SizedBox(height: 20),
@@ -126,40 +102,50 @@ class _BookingScreenState extends State<BookingScreen> {
                 children: [
                   Text(
                     'Bác sĩ thú y nổi bật',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   TextButton(
                     onPressed: () {
-                      // Chuyển hướng sang trang AllVetsScreen
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => AllVetsScreen(vets: allVets),
+                        PageTransition(
+                          type: PageTransitionType.fade,
+                          child: AllVetsScreen(vets: _vets),
                         ),
                       );
                     },
                     child: Text(
                       'Tất cả bác sĩ thú y',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: Colors.blue, fontSize: 16),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 10),
               Column(
-                children: displayedVets.map((vet) {
-                  return VetBookingCard(
-                    name: vet['name'],
-                    specialty: vet['specialty'],
-                    rating: vet['rating'],
-                    image: vet['image'],
-                    petType: vet['specialty'].contains('chó') ? 'Chó' : 'Mèo',
+                children: _vets.take(2).map((vet) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SetBookingDateScreen(
+                            doctorName: vet['name'] ?? "Không có tên",
+                            address: vet['clinicAddress'] ?? "Không có địa chỉ",
+                            rating: vet['rating'] ?? 0.0,
+                            image: vet['avatar'] ?? "https://via.placeholder.com/150",
+                          ),
+                        ),
+                      );
+                    },
+                    child: VetBookingCard(
+                      name: vet['name'] ?? "Không có tên",
+                      specialty: vet['specialization'] ?? "Không xác định",
+                      rating: vet['rating'] ?? 0.0,
+                      image: vet['avatar'] ?? "https://via.placeholder.com/150",
+                      petType: (vet['specialization']?.contains('chó') ?? false) ? 'Chó' : 'Mèo',
+                      isAvailable: vet['isAvailable'] ?? true,
+                    ),
                   );
                 }).toList(),
               ),

@@ -26,6 +26,7 @@ class _VetAccountScreenState extends State<VetAccountScreen> {
   String clinicAddress = "";
   String avatar = "";
 
+
   @override
   void initState() {
     super.initState();

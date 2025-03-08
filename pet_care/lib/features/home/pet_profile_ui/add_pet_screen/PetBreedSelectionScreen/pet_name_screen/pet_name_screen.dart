@@ -79,8 +79,6 @@ class _PetNameScreenState extends State<PetNameScreen> {
                     ),
                   );
 
-
-
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF254EDB),
@@ -93,34 +91,6 @@ class _PetNameScreenState extends State<PetNameScreen> {
             ),
           ),
           const SizedBox(height: 55),
-          BottomNavBar(
-            selectedIndex: selectedIndex,
-            onItemTapped: (index) {
-              setState(() {
-                selectedIndex = index;
-              });
-
-              // Điều hướng đến màn hình tương ứng
-              switch (index) {
-                case 0:
-                  Navigator.pushReplacementNamed(context, '/home'); // Trang chủ
-                  break;
-                case 1:
-                  Navigator.pushReplacementNamed(context, '/'); // Đặt lịch
-                  break;
-                case 2:
-                  Navigator.pushReplacementNamed(context, '/profile_screen'); // Hồ sơ (màn hình hiện tại)
-                  break;
-                case 3:
-                  Navigator.pushReplacementNamed(context, '/'); // Chat
-                  break;
-                case 4:
-                  Navigator.pushReplacementNamed(context, '/AccountScreen'); // Tài khoản
-                  break;
-              }
-
-            },
-          ),
         ],
       ),
     );

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class VetBookingCard extends StatelessWidget {
@@ -7,6 +6,7 @@ class VetBookingCard extends StatelessWidget {
   final double rating;
   final String image;
   final String petType;
+  final bool isAvailable;
 
   VetBookingCard({
     required this.name,
@@ -14,6 +14,7 @@ class VetBookingCard extends StatelessWidget {
     required this.rating,
     required this.image,
     required this.petType,
+    required this.isAvailable,
   });
 
   @override
@@ -48,19 +49,38 @@ class VetBookingCard extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 4),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: petType == 'Chó' ? Colors.blue[50] : Colors.orange[50],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      petType,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: petType == 'Chó' ? Colors.blue : Colors.orange,
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: petType == 'Chó' ? Colors.blue[50] : Colors.orange[50],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          petType,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: petType == 'Chó' ? Colors.blue : Colors.orange,
+                          ),
+                        ),
                       ),
-                    ),
+                      SizedBox(width: 8),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: isAvailable ? Colors.green[50] : Colors.red[50],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          isAvailable ? 'Còn chỗ' : 'Hết chỗ',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isAvailable ? Colors.green : Colors.red,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

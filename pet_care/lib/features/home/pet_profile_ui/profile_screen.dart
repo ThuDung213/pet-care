@@ -4,7 +4,7 @@ import 'package:pet_care/data/model/pet_list.dart';
 import 'package:pet_care/data/repositories/pet_repository.dart';
 import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/add_pet_screen.dart';
 import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/PetBreedSelectionScreen/pet_name_screen/pet_weight_screen/SpecialCharacteristicsScreen/SpecialDayScreen/CaretakerScreen/CompleteProfileScreen/PetProfileScreen/PetProfileScreen.dart';
-import 'package:pet_care/widgets/bottom_nav_bar.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

@@ -138,32 +138,6 @@ class _SpecialCharacteristicsScreenState
             ),
           ),
           const SizedBox(height: 55),
-          BottomNavBar(
-            selectedIndex: selectedIndex,
-            onItemTapped: (index) {
-              setState(() {
-                selectedIndex = index;
-              });
-
-              switch (index) {
-                case 0:
-                  Navigator.pushReplacementNamed(context, '/home');
-                  break;
-                case 1:
-                  Navigator.pushReplacementNamed(context, '/');
-                  break;
-                case 2:
-                  Navigator.pushReplacementNamed(context, '/profile_screen');
-                  break;
-                case 3:
-                  Navigator.pushReplacementNamed(context, '/');
-                  break;
-                case 4:
-                  Navigator.pushReplacementNamed(context, '/AccountScreen');
-                  break;
-              }
-            },
-          ),
         ],
       ),
     );
