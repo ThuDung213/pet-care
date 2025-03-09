@@ -2,98 +2,81 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class AppointmentRepository {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final CollectionReference appointments =
+  FirebaseFirestore.instance.collection('appointments');
 
+  /// Đặt lịch hẹn (mặc định chưa xác nhận)
   Future<void> bookAppointment({
     required String userId,
     required String petId,
     required String vetId,
+    required String vetName,
     required DateTime date,
-    required String timeSlot,
+    required TimeOfDay time,
   }) async {
-    await _firestore.collection("appointments").add({
-      "userId": userId,
-      "petId": petId,
-      "vetId": vetId,
-      "date": Timestamp.fromDate(date),
-      "timeSlot": timeSlot,
-      "status": "pending", // Trạng thái mặc định là chờ xác nhận
-      "createdAt": FieldValue.serverTimestamp(),
-    });
+    try {
+      await appointments.add({
+        'userId': userId,
+        'petId': petId,
+        'vetId': vetId,
+        'vetName': vetName,
+        'date': Timestamp.fromDate(date),
+        'time': '${time.hour}:${time.minute.toString().padLeft(2, '0')}',
+        'status': 'pending', // Trạng thái ban đầu
+        'isConfirmed': false, // Mặc định chưa xác nhận
+        'createdAt': Timestamp.now(),
+      });
+    } catch (e) {
+      print("Lỗi khi đặt lịch hẹn: $e");
+    }
   }
 
-  Future<List<Map<String, dynamic>>> getAppointments(String userId) async {
-    QuerySnapshot snapshot = await _firestore
-        .collection("appointments")
-        .where("userId", isEqualTo: userId)
-        .orderBy("date", descending: false)
-        .get();
-
-    return snapshot.docs.map((doc) {
-      return {
-        "id": doc.id,
-        "userId": doc["userId"],
-        "petId": doc["petId"],
-        "vetId": doc["vetId"],
-        "date": (doc["date"] as Timestamp).toDate(),
-        "timeSlot": doc["timeSlot"],
-        "status": doc["status"],
-      };
-    }).toList();
+  /// Cập nhật trạng thái xác nhận (bác sĩ xác nhận)
+  Future<void> confirmAppointment(String appointmentId) async {
+    try {
+      await appointments.doc(appointmentId).update({
+        'isConfirmed': true,
+        'status': 'confirmed',
+      });
+    } catch (e) {
+      print("Lỗi khi xác nhận lịch hẹn: $e");
+    }
   }
 
+  /// Hủy lịch hẹn
   Future<void> cancelAppointment(String appointmentId) async {
-    await _firestore.collection("appointments").doc(appointmentId).update({
-      "status": "cancelled",
-    });
-  }
-
-  Future<List<String>> getAvailableTimeSlots(String vetId, DateTime selectedDate) async {
-    String selectedDay = _getDayOfWeek(selectedDate);
-
-    QuerySnapshot snapshot = await _firestore
-        .collection("vet_schedules")
-        .where("vetId", isEqualTo: vetId)
-        .where("day", isEqualTo: selectedDay)
-        .get();
-
-    if (snapshot.docs.isEmpty || snapshot.docs.first["closed"] == true) {
-      return []; // Bác sĩ không làm việc ngày này
+    try {
+      await appointments.doc(appointmentId).update({
+        'status': 'cancelled',
+      });
+    } catch (e) {
+      print("Lỗi khi hủy lịch hẹn: $e");
     }
-
-    String startTime = snapshot.docs.first["startTime"];
-    String endTime = snapshot.docs.first["endTime"];
-
-    return _generateTimeSlots(startTime, endTime);
   }
 
-  List<String> _generateTimeSlots(String start, String end) {
-    TimeOfDay startTime = _parseTime(start)!;
-    TimeOfDay endTime = _parseTime(end)!;
-    List<String> timeSlots = [];
-
-    int startMinutes = startTime.hour * 60 + startTime.minute;
-    int endMinutes = endTime.hour * 60 + endTime.minute;
-    int step = 30; // Mỗi slot kéo dài 30 phút
-
-    while (startMinutes + step <= endMinutes) {
-      int hour = startMinutes ~/ 60;
-      int minute = startMinutes % 60;
-      String formattedTime = "${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}";
-      timeSlots.add(formattedTime);
-      startMinutes += step;
-    }
-
-    return timeSlots;
+  /// Lấy danh sách lịch hẹn của một người dùng
+  Stream<List<Map<String, dynamic>>> getUserAppointments(String userId) {
+    return appointments
+        .where('userId', isEqualTo: userId)
+        .orderBy('date', descending: false)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) {
+      var data = doc.data() as Map<String, dynamic>;
+      data['id'] = doc.id; // Thêm ID của document vào dữ liệu
+      return data;
+    }).toList());
   }
 
-  String _getDayOfWeek(DateTime date) {
-    List<String> days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    return days[date.weekday % 7]; // Lấy thứ từ DateTime
-  }
-
-  TimeOfDay? _parseTime(String time) {
-    List<String> parts = time.split(":");
-    return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+  /// Lấy danh sách lịch hẹn của bác sĩ thú y
+  Stream<List<Map<String, dynamic>>> getVetAppointments(String vetId) {
+    return appointments
+        .where('vetId', isEqualTo: vetId)
+        .orderBy('date', descending: false)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) {
+      var data = doc.data() as Map<String, dynamic>;
+      data['id'] = doc.id; // Thêm ID của document vào dữ liệu
+      return data;
+    }).toList());
   }
 }

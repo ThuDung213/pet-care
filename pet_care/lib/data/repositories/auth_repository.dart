@@ -54,4 +54,28 @@ class AuthRepository {
       password: password,
     );
   }
+
+  // Lấy thông tin người dùng hiện tại
+  Future<User?> getCurrentUser() async {
+    try {
+      final firebase_auth.User? firebaseUser = _auth.currentUser;
+      if (firebaseUser != null) {
+        // Lấy thông tin từ collection 'users'
+        final userDoc = await _firestore.collection('users').doc(firebaseUser.uid).get();
+        if (userDoc.exists) {
+          return User.fromMap(userDoc.data()!, firebaseUser.uid); // Truyền cả data và id
+        }
+
+        // Lấy thông tin từ collection 'vets' nếu không tìm thấy trong 'users'
+        final vetDoc = await _firestore.collection('vets').doc(firebaseUser.uid).get();
+        if (vetDoc.exists) {
+          return User.fromMap(vetDoc.data()!, firebaseUser.uid); // Truyền cả data và id
+        }
+      }
+      return null;
+    } catch (e) {
+      print("Lỗi khi lấy thông tin người dùng: $e");
+      return null;
+    }
+  }
 }

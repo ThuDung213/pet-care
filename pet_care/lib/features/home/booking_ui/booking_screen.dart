@@ -130,16 +130,18 @@ class _BookingScreenState extends State<BookingScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => SetBookingDateScreen(
-                            doctorName: vet['name'] ?? "Không có tên",
+                            vetId: vet['id'] ?? "",
+                            vetName: "BS. ${vet['name'] ?? "Không có tên"}",
                             address: vet['clinicAddress'] ?? "Không có địa chỉ",
                             rating: vet['rating'] ?? 0.0,
                             image: vet['avatar'] ?? "https://via.placeholder.com/150",
+                            specialization: vet['specialization'] ?? "",
                           ),
                         ),
                       );
                     },
                     child: VetBookingCard(
-                      name: vet['name'] ?? "Không có tên",
+                      name: "BS. ${vet['name'] ?? "Không có tên"}",
                       specialty: vet['specialization'] ?? "Không xác định",
                       rating: vet['rating'] ?? 0.0,
                       image: vet['avatar'] ?? "https://via.placeholder.com/150",

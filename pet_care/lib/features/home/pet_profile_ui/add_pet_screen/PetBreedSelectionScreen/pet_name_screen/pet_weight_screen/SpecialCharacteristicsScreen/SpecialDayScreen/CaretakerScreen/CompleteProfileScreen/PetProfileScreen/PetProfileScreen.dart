@@ -1,14 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:pet_care/data/repositories/pet_profile_repository.dart';
 import 'package:pet_care/features/home/pet_profile_ui/profile_screen.dart';
 import 'package:pet_care/widgets/bottom_nav_bar.dart';
 
+import '../../../../../../../../../../../vet_home/vet_booking_ui/vet_booking_screen.dart';
+
 class PetProfileScreen extends StatefulWidget {
   final String petId; // Nhận petId từ CompleteProfileScreen hoặc ProfileScreen
+  final bool isVet; // Thêm biến để xác định người dùng là vet hay không
 
-  const PetProfileScreen({Key? key, required this.petId}) : super(key: key);
+  const PetProfileScreen({Key? key, required this.petId, this.isVet = false}) : super(key: key);
 
   @override
   State<PetProfileScreen> createState() => _PetProfileScreenState();
@@ -48,6 +52,7 @@ class _PetProfileScreenState extends State<PetProfileScreen> {
   ];
 
   final PetProfileRepository repository = PetProfileRepository();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -137,32 +142,36 @@ class _PetProfileScreenState extends State<PetProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        // Nút Back chuyển hướng về ProfileScreen
+        // Nút Back chuyển hướng về trang phù hợp
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              (Route<dynamic> route) => false,
-            );
+            if (widget.isVet) {
+              // Nếu là vet, quay lại màn hình trước đó
+              Navigator.pop(context);
+            } else {
+              // Nếu là chủ thú cưng, quay lại ProfileScreen
+              Navigator.pop(context);
+            }
           },
         ),
         title: const Text("Hồ sơ thú cưng", style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: Icon(isEditing ? Icons.done : Icons.edit),
-            onPressed: () async {
-              if (isEditing) {
-                // Khi bấm Done trong chế độ edit, cập nhật dữ liệu lên Firebase
-                await _updatePetData();
-              }
-              setState(() {
-                isEditing = !isEditing;
-              });
-            },
-          )
+          // Chỉ hiển thị nút chỉnh sửa nếu người dùng là chủ thú cưng
+          if (!widget.isVet)
+            IconButton(
+              icon: Icon(isEditing ? Icons.done : Icons.edit),
+              onPressed: () async {
+                if (isEditing) {
+                  // Khi bấm Done trong chế độ edit, cập nhật dữ liệu lên Firebase
+                  await _updatePetData();
+                }
+                setState(() {
+                  isEditing = !isEditing;
+                });
+              },
+            ),
         ],
       ),
       body: StreamBuilder<DocumentSnapshot>(
@@ -202,199 +211,6 @@ class _PetProfileScreenState extends State<PetProfileScreen> {
           );
         },
       ),
-    );
-  }
-
-  Widget _buildProfileView(String imageUrl, String petTypeFromData) {
-    return Column(
-      children: [
-        Center(
-          child: CircleAvatar(
-            radius: 95,
-            backgroundImage: imageUrl.isNotEmpty
-                ? NetworkImage(imageUrl)
-                : const AssetImage('assets/dog_avatar.png') as ImageProvider,
-          ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          petNameController.text,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        Text(
-          "$petTypeFromData | ${petBreedController.text}",
-          style: TextStyle(color: Colors.grey[600]),
-        ),
-        const SizedBox(height: 16),
-        _buildSectionTitle("Đặc điểm"),
-        _buildInfoRow("Giới tính", selectedGender),
-        _buildInfoRow("Kích cỡ", selectedSize),
-        _buildInfoRow("Cân nặng", "${weightController.text} kg"),
-        _buildInfoRow(
-          "Mô tả",
-          selectedCharacteristics.isNotEmpty ? selectedCharacteristics.join(", ") : "Chưa cập nhật",
-        ),
-        const SizedBox(height: 16),
-        _buildSectionTitle("Ngày quan trọng"),
-        _buildDateRow("Sinh nhật", birthDate),
-        _buildDateRow("Ngày nhận nuôi", adoptionDate),
-        const SizedBox(height: 16),
-        _buildSectionTitle("Người chăm sóc"),
-        Row(
-          children: [
-            const CircleAvatar(
-              radius: 20,
-              backgroundImage: AssetImage("assets/avatar_placeholder.png"),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  ownerNameController.text,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  ownerPhoneController.text,
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            ownerAddressController.text,
-            style: const TextStyle(fontSize: 14),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEditView(String imageUrl) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: _pickPetImage,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              CircleAvatar(
-                radius: 95,
-                backgroundImage: currentImageUrl.isNotEmpty
-                    ? NetworkImage(currentImageUrl)
-                    : const AssetImage('assets/dog_avatar.png') as ImageProvider,
-              ),
-              Container(
-                width: 190,
-                height: 190,
-                decoration: BoxDecoration(
-                  color: Colors.black45,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.camera_alt, color: Colors.white, size: 30),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        _buildTextField("Tên thú cưng", petNameController),
-        _buildTextField("Giống", petBreedController),
-        _buildTextField("Cân nặng (kg)", weightController),
-        const SizedBox(height: 8),
-        _buildSectionTitle("Kích cỡ"),
-        DropdownButton<String>(
-          isExpanded: true,
-          value: selectedSize,
-          items: sizeOptions
-              .map((e) => DropdownMenuItem<String>(
-                    value: e,
-                    child: Text(e),
-                  ))
-              .toList(),
-          onChanged: (val) {
-            setState(() {
-              selectedSize = val ?? "";
-            });
-          },
-        ),
-        const SizedBox(height: 16),
-        _buildSectionTitle("Giới tính"),
-        DropdownButton<String>(
-          isExpanded: true,
-          value: selectedGender,
-          items: genderOptions
-              .map((e) => DropdownMenuItem<String>(
-                    value: e,
-                    child: Text(e),
-                  ))
-              .toList(),
-          onChanged: (val) {
-            setState(() {
-              selectedGender = val ?? "";
-            });
-          },
-        ),
-        const SizedBox(height: 16),
-        _buildSectionTitle("Đặc điểm"),
-        Wrap(
-          spacing: 8.0,
-          children: characteristicsOptions.map((option) {
-            final isSelected = selectedCharacteristics.contains(option);
-            return FilterChip(
-              label: Text(option),
-              selected: isSelected,
-              onSelected: (bool selected) {
-                setState(() {
-                  if (selected) {
-                    selectedCharacteristics.add(option);
-                  } else {
-                    selectedCharacteristics.remove(option);
-                  }
-                });
-              },
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 16),
-        _buildSectionTitle("Sinh nhật"),
-        InkWell(
-          onTap: () => _selectDate(context, true),
-          child: _buildDatePickerRow(birthDate),
-        ),
-        const SizedBox(height: 16),
-        _buildSectionTitle("Ngày nhận nuôi"),
-        InkWell(
-          onTap: () => _selectDate(context, false),
-          child: _buildDatePickerRow(adoptionDate),
-        ),
-        const SizedBox(height: 16),
-        _buildSectionTitle("Người chăm sóc"),
-        _buildTextField("Tên chủ", ownerNameController),
-        _buildTextField("SĐT", ownerPhoneController),
-        _buildTextField("Địa chỉ", ownerAddressController),
-        const SizedBox(height: 20),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF254EDB),
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: () async {
-              await _updatePetData();
-              setState(() {
-                isEditing = false;
-              });
-            },
-            child: const Text("Hoàn tất", style: TextStyle(color: Colors.white, fontSize: 16)),
-          ),
-        ),
-      ],
     );
   }
 
@@ -471,6 +287,201 @@ class _PetProfileScreenState extends State<PetProfileScreen> {
           Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
+    );
+  }
+
+  // Widget hiển thị giao diện chỉnh sửa
+  Widget _buildEditView(String imageUrl) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: _pickPetImage,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CircleAvatar(
+                radius: 95,
+                backgroundImage: currentImageUrl.isNotEmpty
+                    ? NetworkImage(currentImageUrl)
+                    : const AssetImage('assets/dog_avatar.png') as ImageProvider,
+              ),
+              Container(
+                width: 190,
+                height: 190,
+                decoration: BoxDecoration(
+                  color: Colors.black45,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.camera_alt, color: Colors.white, size: 30),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        _buildTextField("Tên thú cưng", petNameController),
+        _buildTextField("Giống", petBreedController),
+        _buildTextField("Cân nặng (kg)", weightController),
+        const SizedBox(height: 8),
+        _buildSectionTitle("Kích cỡ"),
+        DropdownButton<String>(
+          isExpanded: true,
+          value: selectedSize,
+          items: sizeOptions
+              .map((e) => DropdownMenuItem<String>(
+            value: e,
+            child: Text(e),
+          ))
+              .toList(),
+          onChanged: (val) {
+            setState(() {
+              selectedSize = val ?? "";
+            });
+          },
+        ),
+        const SizedBox(height: 16),
+        _buildSectionTitle("Giới tính"),
+        DropdownButton<String>(
+          isExpanded: true,
+          value: selectedGender,
+          items: genderOptions
+              .map((e) => DropdownMenuItem<String>(
+            value: e,
+            child: Text(e),
+          ))
+              .toList(),
+          onChanged: (val) {
+            setState(() {
+              selectedGender = val ?? "";
+            });
+          },
+        ),
+        const SizedBox(height: 16),
+        _buildSectionTitle("Đặc điểm"),
+        Wrap(
+          spacing: 8.0,
+          children: characteristicsOptions.map((option) {
+            final isSelected = selectedCharacteristics.contains(option);
+            return FilterChip(
+              label: Text(option),
+              selected: isSelected,
+              onSelected: (bool selected) {
+                setState(() {
+                  if (selected) {
+                    selectedCharacteristics.add(option);
+                  } else {
+                    selectedCharacteristics.remove(option);
+                  }
+                });
+              },
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 16),
+        _buildSectionTitle("Sinh nhật"),
+        InkWell(
+          onTap: () => _selectDate(context, true),
+          child: _buildDatePickerRow(birthDate),
+        ),
+        const SizedBox(height: 16),
+        _buildSectionTitle("Ngày nhận nuôi"),
+        InkWell(
+          onTap: () => _selectDate(context, false),
+          child: _buildDatePickerRow(adoptionDate),
+        ),
+        const SizedBox(height: 16),
+        _buildSectionTitle("Người chăm sóc"),
+        _buildTextField("Tên chủ", ownerNameController),
+        _buildTextField("SĐT", ownerPhoneController),
+        _buildTextField("Địa chỉ", ownerAddressController),
+        const SizedBox(height: 20),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF254EDB),
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () async {
+              await _updatePetData();
+              setState(() {
+                isEditing = false;
+              });
+            },
+            child: const Text("Hoàn tất", style: TextStyle(color: Colors.white, fontSize: 16)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Widget hiển thị giao diện xem thông tin
+  Widget _buildProfileView(String imageUrl, String petTypeFromData) {
+    return Column(
+      children: [
+        Center(
+          child: CircleAvatar(
+            radius: 95,
+            backgroundImage: imageUrl.isNotEmpty
+                ? NetworkImage(imageUrl)
+                : const AssetImage('assets/dog_avatar.png') as ImageProvider,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          petNameController.text,
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          "$petTypeFromData | ${petBreedController.text}",
+          style: TextStyle(color: Colors.grey[600]),
+        ),
+        const SizedBox(height: 16),
+        _buildSectionTitle("Đặc điểm"),
+        _buildInfoRow("Giới tính", selectedGender),
+        _buildInfoRow("Kích cỡ", selectedSize),
+        _buildInfoRow("Cân nặng", "${weightController.text} kg"),
+        _buildInfoRow(
+          "Mô tả",
+          selectedCharacteristics.isNotEmpty ? selectedCharacteristics.join(", ") : "Chưa cập nhật",
+        ),
+        const SizedBox(height: 16),
+        _buildSectionTitle("Ngày quan trọng"),
+        _buildDateRow("Sinh nhật", birthDate),
+        _buildDateRow("Ngày nhận nuôi", adoptionDate),
+        const SizedBox(height: 16),
+        _buildSectionTitle("Người chăm sóc"),
+        Row(
+          children: [
+            const CircleAvatar(
+              radius: 20,
+              backgroundImage: AssetImage("assets/avatar_placeholder.png"),
+            ),
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  ownerNameController.text,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  ownerPhoneController.text,
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            ownerAddressController.text,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ),
+      ],
     );
   }
 }

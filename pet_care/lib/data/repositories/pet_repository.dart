@@ -35,4 +35,18 @@ class PetRepository {
   Future<void> deletePet(String petId) async {
     await _firestore.collection('pets').doc(petId).delete();
   }
+
+  Future<PetModel?> getPetById(String petId) async {
+    try {
+      final doc = await _firestore.collection('pets').doc(petId).get();
+      if (doc.exists) {
+        return PetModel.fromMap(doc.id, doc.data()!);
+      }
+      return null;
+    } catch (e) {
+      print("Lỗi khi lấy thông tin thú cưng: $e");
+      return null;
+    }
+  }
+
 }
