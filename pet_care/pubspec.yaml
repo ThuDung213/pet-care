@@ -45,6 +45,7 @@ dependencies:
   google_generative_ai: ^0.4.6
   lucide_icons: ^0.257.0
   rxdart: ^0.28.0
+  carousel_slider: ^5.0.0
 
 dev_dependencies:
   flutter_test:
