@@ -198,7 +198,7 @@ class _VetRecordSingleScreenState extends State<VetRecordSingleScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "Chủ",
+                        "Người chăm sóc",
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -206,7 +206,7 @@ class _VetRecordSingleScreenState extends State<VetRecordSingleScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _buildInfoRow("Tên", _currentUser!.name),
+                      _buildInfoRow("Tên", _pet!.ownerName),
                       _buildInfoRow("Điện thoại", _currentUser!.phone),
                     ],
                   ),
