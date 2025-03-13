@@ -5,6 +5,8 @@ class AppointmentRepository {
   final CollectionReference appointments =
   FirebaseFirestore.instance.collection('appointments');
 
+
+
   /// Đặt lịch hẹn (mặc định chưa xác nhận)
   Future<void> bookAppointment({
     required String userId,
@@ -26,9 +28,11 @@ class AppointmentRepository {
         'isConfirmed': false, // Mặc định chưa xác nhận
         'createdAt': Timestamp.now(),
       });
+
     } catch (e) {
       print("Lỗi khi đặt lịch hẹn: $e");
     }
+
   }
 
   /// Cập nhật trạng thái xác nhận (bác sĩ xác nhận)
@@ -79,4 +83,5 @@ class AppointmentRepository {
       return data;
     }).toList());
   }
+
 }

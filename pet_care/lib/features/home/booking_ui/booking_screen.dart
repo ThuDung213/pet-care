@@ -4,6 +4,7 @@ import 'package:pet_care/features/home/booking_ui/set_booking_date_screen/set_bo
 import '../../../data/repositories/vet_repository.dart';
 import '../../../widgets/specialization_button.dart';
 import '../../../widgets/vet_booking_card.dart';
+import '../notification_ui/notification_screen.dart';
 import 'all_vets_screen/all_vets_screen.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -61,7 +62,10 @@ class _BookingScreenState extends State<BookingScreen> {
           IconButton(
             icon: Icon(Icons.notifications),
             onPressed: () {
-              // Xử lý khi nhấn vào thông báo
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationScreen()),
+              );
             },
           ),
         ],

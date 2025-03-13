@@ -9,6 +9,8 @@ import 'package:pet_care/data/repositories/vet_repository.dart';
 import 'package:pet_care/widgets/pet_profile_card.dart';
 import 'package:pet_care/widgets/vet_card.dart';
 
+import '../notification_ui/notification_screen.dart';
+
 class HomeMainScreen extends StatefulWidget {
   const HomeMainScreen({super.key});
 
@@ -61,7 +63,9 @@ class _HomeScreenState extends State<HomeMainScreen> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundImage: AssetImage("assets/profile.jpg"),
+              backgroundImage: _user?.avatar != null && _user!.avatar!.isNotEmpty
+                  ? NetworkImage(_user!.avatar!)
+                  : AssetImage("avata_normal/profile.jpg") as ImageProvider,
             ),
             SizedBox(
               width: 10,
@@ -80,8 +84,14 @@ class _HomeScreenState extends State<HomeMainScreen> {
               ],
             ),
             Spacer(),
-            Badge(
-              child: Icon(Icons.notifications_none),
+            IconButton(
+              icon: Icon(Icons.notifications),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => NotificationScreen()),
+                );
+              },
             ),
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../booking_ui/set_booking_date_screen/set_booking_date_screen.dart';
 import '../../../../widgets/vet_booking_card.dart';
+import '../../notification_ui/notification_screen.dart';
 
 class AllVetsScreen extends StatelessWidget {
   final List<Map<String, dynamic>> vets;
@@ -16,7 +17,10 @@ class AllVetsScreen extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.notifications),
             onPressed: () {
-              // Xử lý khi nhấn vào thông báo
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationScreen()),
+              );
             },
           ),
         ],
