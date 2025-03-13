@@ -10,7 +10,8 @@ import '../../../../data/model/user_model.dart'; // Import UserModel
 class VetRecordSingleScreen extends StatefulWidget {
   final String recordId;
 
-  const VetRecordSingleScreen({Key? key, required this.recordId}) : super(key: key);
+  const VetRecordSingleScreen({Key? key, required this.recordId})
+      : super(key: key);
 
   @override
   _VetRecordSingleScreenState createState() => _VetRecordSingleScreenState();
@@ -28,7 +29,7 @@ class _VetRecordSingleScreenState extends State<VetRecordSingleScreen> {
   DateTime? _createdAt; // Ngày khám
   String? _petId; // ID của pet
   PetModel? _pet; // Thông tin pet
-  User? _currentUser; // Thông tin người dùng hiện tại
+  UserModel? _currentUser; // Thông tin người dùng hiện tại
 
   @override
   void initState() {
@@ -41,7 +42,8 @@ class _VetRecordSingleScreenState extends State<VetRecordSingleScreen> {
   Future<void> _loadRecordData() async {
     try {
       // Lấy thông tin record từ VetRecordRepository
-      final recordData = await _vetRecordRepository.getCurrentRecord(widget.recordId);
+      final recordData =
+          await _vetRecordRepository.getCurrentRecord(widget.recordId);
       if (recordData != null) {
         _diagnosisController.text = recordData['diagnosis'] ?? '';
         _treatmentController.text = recordData['treatment'] ?? '';
@@ -81,7 +83,8 @@ class _VetRecordSingleScreenState extends State<VetRecordSingleScreen> {
   Future<void> _pickMultipleImages() async {
     final List<XFile> images = await _vetRecordRepository.pickMultipleImages();
     if (images.isNotEmpty) {
-      final List<String> imageUrls = await _vetRecordRepository.uploadImages(images);
+      final List<String> imageUrls =
+          await _vetRecordRepository.uploadImages(images);
       setState(() {
         _recordImages.addAll(imageUrls);
       });
@@ -121,7 +124,9 @@ class _VetRecordSingleScreenState extends State<VetRecordSingleScreen> {
         actions: [
           IconButton(
             icon: Icon(_isEditing ? Icons.save : Icons.edit),
-            onPressed: _isEditing ? _saveRecord : () => setState(() => _isEditing = true),
+            onPressed: _isEditing
+                ? _saveRecord
+                : () => setState(() => _isEditing = true),
           ),
         ],
       ),
@@ -230,7 +235,8 @@ class _VetRecordSingleScreenState extends State<VetRecordSingleScreen> {
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 4.0,
                       mainAxisSpacing: 4.0,
@@ -247,7 +253,8 @@ class _VetRecordSingleScreenState extends State<VetRecordSingleScreen> {
                             ),
                           );
                         },
-                        child: Image.network(_recordImages[index], fit: BoxFit.cover),
+                        child: Image.network(_recordImages[index],
+                            fit: BoxFit.cover),
                       );
                     },
                   ),
@@ -298,7 +305,8 @@ class _VetRecordSingleScreenState extends State<VetRecordSingleScreen> {
   }
 
   // Hàm xây dựng một phần thông tin (chẩn đoán, điều trị, ghi chú)
-  Widget _buildSection(String title, TextEditingController controller, bool isEditing) {
+  Widget _buildSection(
+      String title, TextEditingController controller, bool isEditing) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -313,16 +321,18 @@ class _VetRecordSingleScreenState extends State<VetRecordSingleScreen> {
             const SizedBox(height: 8),
             isEditing
                 ? TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: "Nhập $title",
-              ),
-            )
+                    controller: controller,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Nhập $title",
+                    ),
+                  )
                 : Text(
-              controller.text.isEmpty ? "Không có dữ liệu" : controller.text,
-              style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
-            ),
+                    controller.text.isEmpty
+                        ? "Không có dữ liệu"
+                        : controller.text,
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
+                  ),
           ],
         ),
       ),

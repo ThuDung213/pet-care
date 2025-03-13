@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pet_care/features/home/booking_ui/booking_screen.dart';
+import 'package:pet_care/features/home/chat_ui/chat_screen.dart';
 import 'package:pet_care/features/home/home_ui/home_main_screen.dart';
 import 'package:pet_care/features/home/pet_profile_ui/profile_screen.dart';
 import 'package:pet_care/features/home/settings_ui/account_screen.dart';
@@ -8,7 +9,6 @@ import '../../widgets/bottom_nav_bar.dart';
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
-
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -19,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
     HomeMainScreen(),
     BookingScreen(),
     ProfileScreen(),
-    Center(child: Text('Chat')),
+    ChatScreen(),
     AccountScreen(),
   ];
 

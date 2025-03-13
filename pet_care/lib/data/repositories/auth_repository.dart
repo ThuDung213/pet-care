@@ -13,14 +13,15 @@ class AuthRepository {
   static const String clientId = "8914f132dd10f2d";
 
   // Đăng ký người dùng
-  Future<void> signUp(String email, String password, String name, String phone) async {
+  Future<void> signUp(
+      String email, String password, String name, String phone) async {
     final userCredential = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
 
     // Lưu thông tin người dùng vào Firestore
-    final newUser = User(
+    final newUser = UserModel(
       id: userCredential.user!.uid,
       name: name,
       email: email,
@@ -32,7 +33,8 @@ class AuthRepository {
   }
 
   // Đăng ký bác sĩ thú y
-  Future<void> signUpVet(String email, String password, String name, String phone, String specialization, String clinicAddress) async {
+  Future<void> signUpVet(String email, String password, String name,
+      String phone, String specialization, String clinicAddress) async {
     final userCredential = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
@@ -61,20 +63,24 @@ class AuthRepository {
   }
 
   // Lấy thông tin người dùng hiện tại
-  Future<User?> getCurrentUser() async {
+  Future<UserModel?> getCurrentUser() async {
     try {
       final firebase_auth.User? firebaseUser = _auth.currentUser;
       if (firebaseUser != null) {
         // Lấy thông tin từ collection 'users'
-        final userDoc = await _firestore.collection('users').doc(firebaseUser.uid).get();
+        final userDoc =
+            await _firestore.collection('users').doc(firebaseUser.uid).get();
         if (userDoc.exists) {
-          return User.fromMap(userDoc.data()!, firebaseUser.uid); // Truyền cả data và id
+          return UserModel.fromMap(
+              userDoc.data()!, firebaseUser.uid); // Truyền cả data và id
         }
 
         // Lấy thông tin từ collection 'vets' nếu không tìm thấy trong 'users'
-        final vetDoc = await _firestore.collection('vets').doc(firebaseUser.uid).get();
+        final vetDoc =
+            await _firestore.collection('vets').doc(firebaseUser.uid).get();
         if (vetDoc.exists) {
-          return User.fromMap(vetDoc.data()!, firebaseUser.uid); // Truyền cả data và id
+          return UserModel.fromMap(
+              vetDoc.data()!, firebaseUser.uid); // Truyền cả data và id
         }
       }
       return null;
