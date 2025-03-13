@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class AppointmentRepository {
   final CollectionReference appointments =
-  FirebaseFirestore.instance.collection('appointments');
+      FirebaseFirestore.instance.collection('appointments');
 
   /// Đặt lịch hẹn (mặc định chưa xác nhận)
   Future<void> bookAppointment({
@@ -61,22 +61,22 @@ class AppointmentRepository {
         .orderBy('date', descending: false)
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) {
-      var data = doc.data() as Map<String, dynamic>;
-      data['id'] = doc.id; // Thêm ID của document vào dữ liệu
-      return data;
-    }).toList());
+              var data = doc.data() as Map<String, dynamic>;
+              data['id'] = doc.id; // Thêm ID của document vào dữ liệu
+              return data;
+            }).toList());
   }
 
   /// Lấy danh sách lịch hẹn của bác sĩ thú y
-  Stream<List<Map<String, dynamic>>> getVetAppointments(String vetId) {
+  Stream<List<Map<String, dynamic>>> getVetAppointments(String? vetId) {
     return appointments
         .where('vetId', isEqualTo: vetId)
         .orderBy('date', descending: false)
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) {
-      var data = doc.data() as Map<String, dynamic>;
-      data['id'] = doc.id; // Thêm ID của document vào dữ liệu
-      return data;
-    }).toList());
+              var data = doc.data() as Map<String, dynamic>;
+              data['id'] = doc.id; // Thêm ID của document vào dữ liệu
+              return data;
+            }).toList());
   }
 }
