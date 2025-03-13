@@ -58,7 +58,8 @@ class VetRepository {
   /// **Lấy thông tin bác sĩ thú y theo `vetId`**
   Future<Map<String, dynamic>?> getVetById(String vetId) async {
     try {
-      DocumentSnapshot doc = await _firestore.collection("vets").doc(vetId).get();
+      DocumentSnapshot doc =
+          await _firestore.collection("vets").doc(vetId).get();
       if (doc.exists) {
         return doc.data() as Map<String, dynamic>;
       }

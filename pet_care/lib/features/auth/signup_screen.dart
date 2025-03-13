@@ -18,7 +18,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   void _signup() async {
     try {
-      final newUser = User(
+      final newUser = UserModel(
         id: '', // Firebase sẽ tự tạo ID khi đăng ký
         name: nameController.text.trim(),
         email: emailController.text.trim(),
@@ -85,7 +85,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   CircleAvatar(
                     backgroundColor: Colors.white,
                     radius: 30,
-                    child: const Icon(Icons.person_2_outlined, color: Colors.blue, size: 35),
+                    child: const Icon(Icons.person_2_outlined,
+                        color: Colors.blue, size: 35),
                   ),
 
                   const SizedBox(height: 15),
@@ -111,7 +112,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: "Họ và Tên",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
 
@@ -122,7 +124,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     controller: phoneController,
                     decoration: InputDecoration(
                       labelText: "Số điện thoại",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
 
@@ -133,7 +136,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     controller: emailController,
                     decoration: InputDecoration(
                       labelText: "Email",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
                   ),
 
@@ -145,7 +149,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: "Mật khẩu",
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
                       suffixIcon: Icon(Icons.visibility_off),
                     ),
                   ),
@@ -168,7 +173,8 @@ class _SignupScreenState extends State<SignupScreen> {
                         onTap: () {},
                         child: const Text(
                           "Chính sách của PetBuddy",
-                          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: Colors.blue, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -188,7 +194,11 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
                       ),
                       onPressed: _signup,
-                      child: const Text("Tạo tài khoản", style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+                      child: const Text("Tạo tài khoản",
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
                     ),
                   ),
 
@@ -196,10 +206,12 @@ class _SignupScreenState extends State<SignupScreen> {
 
                   // Login Redirect
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, AppRoutes.login),
+                    onPressed: () =>
+                        Navigator.pushNamed(context, AppRoutes.login),
                     child: const Text(
                       "Đã có tài khoản? Đăng nhập",
-                      style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          color: Colors.blue, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
