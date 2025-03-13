@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:pet_care/data/repositories/pet_profile_repository.dart';
 import 'package:pet_care/features/home/pet_profile_ui/profile_screen.dart';
-import 'package:pet_care/widgets/bottom_nav_bar.dart';
 
 import '../../../../../../../../../../../vet_home/vet_booking_ui/vet_booking_screen.dart';
 
@@ -151,7 +150,11 @@ class _PetProfileScreenState extends State<PetProfileScreen> {
               Navigator.pop(context);
             } else {
               // Nếu là chủ thú cưng, quay lại ProfileScreen
-              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+
             }
           },
         ),
@@ -455,7 +458,7 @@ class _PetProfileScreenState extends State<PetProfileScreen> {
           children: [
             const CircleAvatar(
               radius: 20,
-              backgroundImage: AssetImage("assets/avatar_placeholder.png"),
+              backgroundImage: AssetImage("assets/avata_normal.png"),
             ),
             const SizedBox(width: 10),
             Column(

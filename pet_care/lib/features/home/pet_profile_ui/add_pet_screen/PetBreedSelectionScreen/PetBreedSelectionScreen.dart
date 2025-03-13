@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pet_care/data/model/petbreed.dart';
 import 'package:pet_care/data/repositories/petbreed_repository.dart';
 import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/PetBreedSelectionScreen/pet_name_screen/pet_name_screen.dart';
-import 'package:pet_care/widgets/bottom_nav_bar.dart';
+
 
 class PetBreedSelectionScreen extends StatefulWidget {
   final String selectedPetType;

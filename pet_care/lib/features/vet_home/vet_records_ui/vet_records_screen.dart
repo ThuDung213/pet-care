@@ -17,7 +17,7 @@ class VetRecordsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Hồ sơ bác sĩ"), // Đổi tiêu đề thành "Hồ sơ bác sĩ"
+        title: const Text("Hồ sơ khám bệnh"), 
         backgroundColor: Colors.blue, // Màu nền của AppBar
         elevation: 0, // Bỏ đổ bóng
       ),

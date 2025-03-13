@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/PetBreedSelectionScreen/PetBreedSelectionScreen.dart';
-import 'package:pet_care/widgets/bottom_nav_bar.dart';
+
 
 
 class AddPetScreen extends StatefulWidget {
@@ -11,27 +11,26 @@ class AddPetScreen extends StatefulWidget {
 }
 
 class _AddPetScreenState extends State<AddPetScreen> {
-  // Giả sử đang ở bước 1/7
+
   final int currentStep = 1;
   final int totalSteps = 7;
-  int selectedIndex = 2; // Đánh dấu tab hiện tại (Hồ sơ thú cưng)
+  int selectedIndex = 2; 
 
 
   @override
   Widget build(BuildContext context) {
-    // Tính toán giá trị progress (0.0 -> 1.0)
-    final double progressValue = currentStep / totalSteps; // = 1/7 ≈ 0.14
+    final double progressValue = currentStep / totalSteps; 
 
     return Scaffold(
       backgroundColor: Colors.white,
-      // Tùy chỉnh chiều cao AppBar để có chỗ cho progress bar
+    
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(90), // Độ cao tùy ý
+        preferredSize: const Size.fromHeight(90), 
         child: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
           centerTitle: true,
-          // Tiêu đề gồm 2 dòng: (1) "Hồ sơ thú cưng", (2) "Giống"
+
           title: Column(
             children: const [
               Text(
