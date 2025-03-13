@@ -33,6 +33,8 @@ class PetModel {
     );
   }
 
+  get name => null;
+
 
 
 
