@@ -14,8 +14,10 @@ class VetBookingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String vetId = FirebaseAuth.instance.currentUser?.uid ?? "";
-    final AppointmentRepository appointmentRepository = AppointmentRepository(); // Khởi tạo repository
-    final PetRepository petRepository = PetRepository(); // Khởi tạo PetRepository
+    final AppointmentRepository appointmentRepository =
+        AppointmentRepository(); // Khởi tạo repository
+    final PetRepository petRepository =
+        PetRepository(); // Khởi tạo PetRepository
 
     return Scaffold(
       appBar: AppBar(
@@ -26,7 +28,8 @@ class VetBookingScreen extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const VetEditScheduleScreen()),
+                MaterialPageRoute(
+                    builder: (context) => const VetEditScheduleScreen()),
               );
             },
           ),
@@ -54,13 +57,15 @@ class VetBookingScreen extends StatelessWidget {
               final appointmentId = appointment['id'];
               final userId = appointment['userId'];
               final petId = appointment['petId']; // Lấy petId từ dữ liệu
-              final date = (appointment['date'] as Timestamp).toDate().toString();
+              final date =
+                  (appointment['date'] as Timestamp).toDate().toString();
               final time = appointment['time'];
-              final isConfirmed = appointment['isConfirmed'] ?? false; // Trạng thái xác nhận
+              final isConfirmed =
+                  appointment['isConfirmed'] ?? false; // Trạng thái xác nhận
 
               // Sử dụng StreamBuilder để lấy thông tin thú cưng từ petId
               return StreamBuilder<List<PetModel>>(
-                stream: petRepository.getAllPets(), // Hoặc getUserPets(userId) nếu bạn muốn lọc theo userId
+                stream: petRepository.getAllPets(),
                 builder: (context, petSnapshot) {
                   if (petSnapshot.connectionState == ConnectionState.waiting) {
                     return const ListTile(
@@ -75,8 +80,15 @@ class VetBookingScreen extends StatelessWidget {
 
                   // Tìm thú cưng có petId trùng khớp
                   final pet = petSnapshot.data!.firstWhere(
-                        (pet) => pet.docId == petId,
-                    orElse: () => PetModel(docId: '', petName: '', petBreed: '', imageUrl: '', ownerName: '', gender: '', petType: ''), // Giá trị mặc định nếu không tìm thấy
+                    (pet) => pet.docId == petId,
+                    orElse: () => PetModel(
+                        docId: '',
+                        petName: '',
+                        petBreed: '',
+                        imageUrl: '',
+                        ownerName: '',
+                        gender: '',
+                        petType: ''), // Giá trị mặc định nếu không tìm thấy
                   );
 
                   return GestureDetector(
@@ -85,40 +97,47 @@ class VetBookingScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => PetProfileScreen(petId: petId, isVet: true),
+                          builder: (context) =>
+                              PetProfileScreen(petId: petId, isVet: true),
                         ),
                       );
                     },
                     child: Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundImage: pet.imageUrl.isNotEmpty
-                              ? NetworkImage(pet.imageUrl) // Hiển thị hình ảnh từ URL
+                              ? NetworkImage(
+                                  pet.imageUrl) // Hiển thị hình ảnh từ URL
                               : null, // Nếu không có hình ảnh
                           child: pet.imageUrl.isEmpty
-                              ? const Icon(Icons.pets) // Biểu tượng mặc định nếu không có hình ảnh
+                              ? const Icon(Icons
+                                  .pets) // Biểu tượng mặc định nếu không có hình ảnh
                               : null,
                         ),
                         title: Text("Lịch hẹn với: ${pet.petName}"),
                         subtitle: Text("Ngày: $date - Giờ: $time"),
                         trailing: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isConfirmed ? Colors.green : Colors.blue, // Màu nền của nút
+                            backgroundColor: isConfirmed
+                                ? Colors.green
+                                : Colors.blue, // Màu nền của nút
                             foregroundColor: Colors.white, // Màu chữ của nút
                           ),
                           onPressed: isConfirmed
                               ? null // Vô hiệu hóa nút nếu đã xác nhận
                               : () {
-                            _showSimpleConfirmationDialog(
-                              context,
-                              appointmentId,
-                              userId,
-                              vetId,
-                              petId,
-                              DateTime.parse(date), // Chuyển đổi date thành DateTime
-                            );
-                          },
+                                  _showSimpleConfirmationDialog(
+                                    context,
+                                    appointmentId,
+                                    userId,
+                                    vetId,
+                                    petId,
+                                    DateTime.parse(
+                                        date), // Chuyển đổi date thành DateTime
+                                  );
+                                },
                           child: Text(isConfirmed ? "Đã xác nhận" : "Xác nhận"),
                         ),
                       ),
@@ -134,19 +153,20 @@ class VetBookingScreen extends StatelessWidget {
   }
 
   void _showSimpleConfirmationDialog(
-      BuildContext context,
-      String appointmentId,
-      String userId,
-      String vetId,
-      String petId,
-      DateTime appointmentDate,
-      ) async {
+    BuildContext context,
+    String appointmentId,
+    String userId,
+    String vetId,
+    String petId,
+    DateTime appointmentDate,
+  ) async {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text("Xác nhận lịch hẹn"),
-          content: const Text("Bạn có chắc chắn muốn xác nhận lịch hẹn này không?"),
+          content:
+              const Text("Bạn có chắc chắn muốn xác nhận lịch hẹn này không?"),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -162,11 +182,13 @@ class VetBookingScreen extends StatelessWidget {
               ),
               onPressed: () async {
                 // Xác nhận lịch hẹn
-                final AppointmentRepository appointmentRepository = AppointmentRepository();
+                final AppointmentRepository appointmentRepository =
+                    AppointmentRepository();
                 await appointmentRepository.confirmAppointment(appointmentId);
 
                 // Tạo PetRecord rỗng
-                final VetRecordRepository vetRecordRepository = VetRecordRepository();
+                final VetRecordRepository vetRecordRepository =
+                    VetRecordRepository();
                 await vetRecordRepository.createPetRecord(
                   userId: userId,
                   vetId: vetId,
@@ -180,7 +202,9 @@ class VetBookingScreen extends StatelessWidget {
 
                 // Hiển thị thông báo thành công
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Lịch hẹn đã được xác nhận và PetRecord đã được tạo!")),
+                  const SnackBar(
+                      content: Text(
+                          "Lịch hẹn đã được xác nhận và PetRecord đã được tạo!")),
                 );
               },
               child: const Text("Có"),
