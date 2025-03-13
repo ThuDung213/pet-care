@@ -1,8 +1,11 @@
-// lib/screens/chat_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pet_care/data/model/message_model.dart';
 import 'package:pet_care/widgets/message.dart';
+import '../../../data/model/user_model.dart';
+import '../notification_ui/notification_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -16,14 +19,35 @@ class _ChatScreenState extends State<ChatScreen> {
   static const apiKey = "AIzaSyBIiyjHQkav93Zt2GXe6qVedp0TjUsP-rM";
   final model = GenerativeModel(model: 'gemini-2.0-flash', apiKey: apiKey);
   final List<Message> _messages = [];
+  final _auth = FirebaseAuth.instance;
+  User? user;
+  UserModel? userModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  /// **Lấy dữ liệu người dùng từ Firestore**
+  void _fetchUserData() async {
+    user = _auth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
+      if (userDoc.exists) {
+        setState(() {
+          userModel = UserModel.fromMap(userDoc.data() as Map<String, dynamic>,userDoc.id);
+        });
+      }
+    }
+  }
 
   Future<void> sendMessage() async {
     final message = _userInput.text;
     if (message.isEmpty) return;
 
     setState(() {
-      _messages
-          .add(Message(isUser: true, message: message, date: DateTime.now()));
+      _messages.add(Message(isUser: true, message: message, date: DateTime.now()));
     });
 
     final content = [Content.text(message)];
@@ -42,11 +66,46 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: userModel?.avatar != null && userModel!.avatar!.isNotEmpty
+                  ? NetworkImage(userModel!.avatar!)
+                  : AssetImage("assets/avatar_default.png") as ImageProvider,
+              radius: 20,
+            ),
+            SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Hello,", style: TextStyle(fontSize: 14, color: Colors.grey)),
+                Text(
+                  userModel?.name ?? "User",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-              colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.8), BlendMode.dstATop),
+              colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.8), BlendMode.dstATop),
               image: NetworkImage(
                   'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEigDbiBM6I5Fx1Jbz-hj_mqL_KtAPlv9UsQwpthZIfFLjL-hvCmst09I-RbQsbVt5Z0QzYI_Xj1l8vkS8JrP6eUlgK89GJzbb_P-BwLhVP13PalBm8ga1hbW5pVx8bswNWCjqZj2XxTFvwQ__u4ytDKvfFi5I2W9MDtH3wFXxww19EVYkN8IzIDJLh_aw/s1920/space-soldier-ai-wallpaper-4k.webp'),
               fit: BoxFit.cover),

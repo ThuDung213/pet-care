@@ -3,11 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pet_care/data/model/pet_list.dart';
 import 'package:pet_care/data/repositories/pet_repository.dart';
 import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/add_pet_screen.dart';
-import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/PetBreedSelectionScreen/pet_name_screen/pet_weight_screen/SpecialCharacteristicsScreen/SpecialDayScreen/CaretakerScreen/CompleteProfileScreen/PetProfileScreen/PetProfileScreen.dart';
-
+import '../../../data/model/user_model.dart';
+import '../../../data/repositories/user_repository.dart';
 import '../notification_ui/notification_screen.dart';
 import 'PetDiagnosis/PetDiagnosisScreen.dart';
-
+import 'add_pet_screen/PetBreedSelectionScreen/pet_name_screen/pet_weight_screen/SpecialCharacteristicsScreen/SpecialDayScreen/CaretakerScreen/CompleteProfileScreen/PetProfileScreen/PetProfileScreen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -18,10 +18,28 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final petRepo = PetRepository();
-  final user = FirebaseAuth.instance.currentUser;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final UserRepository _userRepository = UserRepository();
+  UserModel? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserInfo();
+  }
+
+  Future<void> _fetchUserInfo() async {
+    UserModel? user = await _userRepository.getUserInfo();
+    if (mounted) {
+      setState(() {
+        _user = user;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    User? user = _auth.currentUser;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -30,39 +48,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 0,
         title: Row(
           children: [
-            const CircleAvatar(
-              backgroundImage: AssetImage('assets/avata.png'),
-              radius: 20, // Đảm bảo bán kính giống với BookingScreen
+            CircleAvatar(
+              backgroundImage: _user?.avatar != null && _user!.avatar!.isNotEmpty
+                  ? NetworkImage(_user!.avatar!)
+                  : AssetImage("avata_normal/profile.jpg") as ImageProvider,
             ),
             const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "Hello,",
-                  style: TextStyle(color: Colors.black54, fontSize: 14),
+                  "Hello",
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
                 Text(
-                  user?.email ?? "Chưa đăng nhập",
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  _user?.name ?? "No Name",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
+            const Spacer(),
+            IconButton(
+              icon: const Icon(Icons.notifications),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => NotificationScreen()),
+                );
+              },
+            ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: Badge(
-              child: Icon(Icons.notifications),
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotificationScreen()),
-              );
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -76,12 +92,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 final petList = snapshot.data ?? [];
                 if (petList.isEmpty) {
                   return _buildNoPetUI();
                 }
-
                 return ListView.builder(
                   itemCount: petList.length,
                   padding: const EdgeInsets.only(bottom: 20),
@@ -159,7 +173,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundImage: pet.imageUrl.isNotEmpty
             ? NetworkImage(pet.imageUrl)
             : const AssetImage('assets/dog_avatar.png') as ImageProvider,
-        radius: 25, // Điều chỉnh kích thước avatar
+        radius: 25,
       ),
       title: Text(
         pet.petName,
@@ -172,7 +186,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Icon "document"
           IconButton(
             icon: const Icon(Icons.insert_drive_file, color: Colors.blue),
             onPressed: () {
@@ -180,12 +193,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 context,
                 MaterialPageRoute(builder: (context) => PetDiagnosisScreen(petId: pet.docId)),
               );
-
-
             },
           ),
-
-          // Icon "delete"
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () async {
@@ -194,7 +203,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
-
     );
   }
 }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:pet_care/features/home/booking_ui/set_booking_date_screen/set_booking_date_screen.dart';
+import '../../../data/model/user_model.dart';
 import '../../../data/repositories/vet_repository.dart';
 import '../../../widgets/specialization_button.dart';
 import '../../../widgets/vet_booking_card.dart';
@@ -14,13 +17,17 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   final VetRepository _vetRepository = VetRepository();
+  final _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> _vets = [];
   bool _isLoading = true;
+  User? user;
+  UserModel? userModel;
 
   @override
   void initState() {
     super.initState();
     _fetchVets();
+    _fetchUserData();
   }
 
   /// **Lấy danh sách bác sĩ thú y từ Firestore**
@@ -32,14 +39,32 @@ class _BookingScreenState extends State<BookingScreen> {
     });
   }
 
+  /// **Lấy dữ liệu người dùng từ Firestore**
+  void _fetchUserData() async {
+    user = _auth.currentUser;
+    if (user != null) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
+      if (userDoc.exists) {
+        setState(() {
+          userModel = UserModel.fromMap(userDoc.data() as Map<String, dynamic>,userDoc.id);
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        elevation: 0,
         title: Row(
           children: [
             CircleAvatar(
-              backgroundImage: NetworkImage('https://via.placeholder.com/150'),
+              backgroundImage: userModel?.avatar != null && userModel!.avatar!.isNotEmpty
+                  ? NetworkImage(userModel!.avatar!)
+                  : AssetImage("assets/avatar_default.png") as ImageProvider,
               radius: 20,
             ),
             SizedBox(width: 10),
@@ -47,11 +72,11 @@ class _BookingScreenState extends State<BookingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Hello',
+                  "Hello,",
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 Text(
-                  'Programmer',
+                  userModel?.name ?? "User",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
