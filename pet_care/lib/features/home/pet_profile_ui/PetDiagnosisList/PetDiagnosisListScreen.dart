@@ -81,14 +81,16 @@ class PetDiagnosisListScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => PetDiagnosisScreen(
-                              diagnosis: data['diagnosis'] ?? "Không có dữ liệu",
-                              vetId: data['vetId'] ?? "", 
+                              diagnosis: data['diagnosis'],
+                              vetId: data['vetId'],
                               createdAt: data['createdAt'],
-                              treatment: data['treatment'] ?? "Không có thông tin điều trị",
-                              note: data['note'] ?? "Không có ghi chú",
+                              treatment: data['treatment'],
+                              note: data['note'],
+                              recordImg: List<String>.from(data['recordImg'] ?? []), // Chuyển đổi từ Firestore
                             ),
                           ),
                         );
+
                       },
 
 
