@@ -1,13 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:pet_care/features/home/booking_ui/set_booking_date_screen/set_booking_date_screen.dart';
 import '../../../data/model/user_model.dart';
 import '../../../data/repositories/vet_repository.dart';
-import '../../../widgets/specialization_button.dart';
 import '../../../widgets/vet_booking_card.dart';
-import '../notification_ui/notification_screen.dart';
 import 'all_vets_screen/all_vets_screen.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -17,17 +15,26 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   final VetRepository _vetRepository = VetRepository();
-  final _auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> _vets = [];
+  List<Map<String, dynamic>> _filteredVets = [];
   bool _isLoading = true;
-  User? user;
+  String? _selectedSpecialization;
+  TextEditingController _searchController = TextEditingController();
   UserModel? userModel;
+  User? user;
 
   @override
   void initState() {
     super.initState();
-    _fetchVets();
     _fetchUserData();
+    _fetchVets();
+    _searchController.addListener(_filterVets);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   /// **Lấy danh sách bác sĩ thú y từ Firestore**
@@ -35,18 +42,35 @@ class _BookingScreenState extends State<BookingScreen> {
     List<Map<String, dynamic>> vets = await _vetRepository.getAllVets();
     setState(() {
       _vets = vets;
+      _filteredVets = vets;
       _isLoading = false;
     });
   }
 
-  /// **Lấy dữ liệu người dùng từ Firestore**
+  /// **Lọc danh sách theo từ khóa tìm kiếm và chuyên môn**
+  void _filterVets() {
+    String query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredVets = _vets.where((vet) {
+        String name = (vet['name'] ?? "").toLowerCase();
+        String specialization = (vet['specialization'] ?? "").toLowerCase();
+
+        bool matchesSearch = name.contains(query) || specialization.contains(query);
+        bool matchesSpecialization = _selectedSpecialization == null ||
+            specialization.contains(_selectedSpecialization!.toLowerCase());
+
+        return matchesSearch && matchesSpecialization;
+      }).toList();
+    });
+  }
+
   void _fetchUserData() async {
-    user = _auth.currentUser;
+    user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
       if (userDoc.exists) {
         setState(() {
-          userModel = UserModel.fromMap(userDoc.data() as Map<String, dynamic>,userDoc.id);
+          userModel = UserModel.fromMap(userDoc.data() as Map<String, dynamic>, userDoc.id);
         });
       }
     }
@@ -56,9 +80,6 @@ class _BookingScreenState extends State<BookingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        elevation: 0,
         title: Row(
           children: [
             CircleAvatar(
@@ -71,14 +92,8 @@ class _BookingScreenState extends State<BookingScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Hello,",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-                Text(
-                  userModel?.name ?? "User",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                Text('Hello', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                Text(userModel?.name ?? "User", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ],
             ),
           ],
@@ -86,12 +101,7 @@ class _BookingScreenState extends State<BookingScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.notifications),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotificationScreen()),
-              );
-            },
+            onPressed: () {},
           ),
         ],
       ),
@@ -104,6 +114,7 @@ class _BookingScreenState extends State<BookingScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextField(
+                controller: _searchController,
                 decoration: InputDecoration(
                   hintText: 'Tìm kiếm bác sĩ thú y...',
                   prefixIcon: Icon(Icons.search),
@@ -121,8 +132,28 @@ class _BookingScreenState extends State<BookingScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  SpecializationButton(icon: Icons.pets, label: 'Chó', color: Colors.blue),
-                  SpecializationButton(icon: Icons.pets, label: 'Mèo', color: Colors.orange),
+                  SpecializationButton(
+                    icon: Icons.pets,
+                    label: 'Chó',
+                    color: _selectedSpecialization == 'Chó' ? Colors.blue[700]! : Colors.blue,
+                    onPressed: () {
+                      setState(() {
+                        _selectedSpecialization = _selectedSpecialization == 'Chó' ? null : 'Chó';
+                      });
+                      _filterVets();
+                    },
+                  ),
+                  SpecializationButton(
+                    icon: Icons.pets,
+                    label: 'Mèo',
+                    color: _selectedSpecialization == 'Mèo' ? Colors.orange[700]! : Colors.orange,
+                    onPressed: () {
+                      setState(() {
+                        _selectedSpecialization = _selectedSpecialization == 'Mèo' ? null : 'Mèo';
+                      });
+                      _filterVets();
+                    },
+                  ),
                 ],
               ),
               SizedBox(height: 20),
@@ -139,7 +170,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         context,
                         PageTransition(
                           type: PageTransitionType.fade,
-                          child: AllVetsScreen(vets: _vets),
+                          child: AllVetsScreen(vets: _filteredVets),
                         ),
                       );
                     },
@@ -151,8 +182,18 @@ class _BookingScreenState extends State<BookingScreen> {
                 ],
               ),
               SizedBox(height: 10),
-              Column(
-                children: _vets.take(2).map((vet) {
+              _filteredVets.isEmpty
+                  ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Text(
+                    'Không tìm thấy bác sĩ phù hợp.',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
+                  ),
+                ),
+              )
+                  : Column(
+                children: _filteredVets.take(3).map((vet) {
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -174,7 +215,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       specialty: vet['specialization'] ?? "Không xác định",
                       rating: vet['rating'] ?? 0.0,
                       image: vet['avatar'] ?? "https://via.placeholder.com/150",
-                      petType: (vet['specialization']?.contains('chó') ?? vet['specialization']?.contains('Chó') ?? false) ? 'Chó' : 'Mèo',
+                      petType: (vet['specialization']?.contains('chó') ?? false) ? 'Chó' : 'Mèo',
                       isAvailable: vet['isAvailable'] ?? true,
                     ),
                   );
@@ -183,6 +224,34 @@ class _BookingScreenState extends State<BookingScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class SpecializationButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onPressed;
+
+  SpecializationButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onPressed,
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 40),
+          SizedBox(height: 5),
+          Text(label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+        ],
       ),
     );
   }
