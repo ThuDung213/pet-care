@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 
+import '../model/vet_model.dart';
+
 class VetRepository {
   static const String clientId = "8914f132dd10f2d";
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -68,6 +70,21 @@ class VetRepository {
     }
     return null;
   }
+
+  Future<Vet?> getVetByIdFromModel(String vetId) async {
+    try {
+      DocumentSnapshot doc =
+      await _firestore.collection("vets").doc(vetId).get();
+      if (doc.exists) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return Vet.fromMap(data,doc.id); // Chuyển đổi Map thành Vet
+      }
+    } catch (e) {
+      print("Error fetching vet data: $e");
+    }
+    return null;
+  }
+
 
   /// **Xóa bác sĩ thú y khỏi Firestore**
   Future<void> deleteVet(String vetId) async {

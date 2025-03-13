@@ -38,72 +38,71 @@ class VetNotificationScreen extends StatelessWidget {
               return const Center(child: Text("Không có thông báo nào."));
             }
 
-            final List<Map<String, dynamic>> appointments =
-            snapshot.data!.docs.map((doc) {
-              var data = doc.data() as Map<String, dynamic>;
-              data['id'] = doc.id;
-              return data;
-            }).toList();
+            final appointments = snapshot.data!.docs;
 
-            // Nhóm thông báo theo ngày
-            Map<String, List<Map<String, dynamic>>> groupedAppointments = {};
-            for (var data in appointments) {
-              String dateKey = DateFormat('dd/MM/yyyy')
-                  .format((data['date'] as Timestamp).toDate());
-              groupedAppointments.putIfAbsent(dateKey, () => []).add(data);
-            }
+            return ListView.builder(
+              itemCount: appointments.length,
+              itemBuilder: (context, index) {
+                var appointmentData =
+                appointments[index].data() as Map<String, dynamic>;
+                return FutureBuilder<Map<String, String>>(
+                  future: _fetchUserAndPetInfo(
+                    appointmentData['userId'],
+                    appointmentData['petId'],
+                  ),
+                  builder: (context, userPetSnapshot) {
+                    if (!userPetSnapshot.hasData) {
+                      return const SizedBox(); // Ẩn nếu chưa có dữ liệu
+                    }
 
-            return ListView(
-              children: groupedAppointments.entries.map((entry) {
-                String date = entry.key;
-                List<Map<String, dynamic>> items = entry.value;
+                    String userName = userPetSnapshot.data!['userName'] ?? "Người dùng";
+                    String petName = userPetSnapshot.data!['petName'] ?? "thú cưng";
+                    String time = appointmentData['time'] ?? "không rõ";
+                    String status = appointmentData['status'] ?? "pending";
+                    String date = DateFormat('dd/MM/yyyy').format(
+                      (appointmentData['date'] as Timestamp).toDate(),
+                    );
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      date == DateFormat('dd/MM/yyyy').format(DateTime.now())
-                          ? "Hôm nay"
-                          : date,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Column(
-                      children: items.map((data) {
-                        String userName = data['userName'] ?? "Người dùng";
-                        String petName = data['petName'] ?? "thú cưng";
-                        String status = data['status'] ?? "pending";
-                        String time = data['time'] ?? "không rõ";
+                    // Nội dung thông báo
+                    String message;
+                    if (status == "pending") {
+                      message =
+                      "$userName đã đặt lịch cho $petName vào $time. Vui lòng xác nhận!";
+                    } else if (status == "confirmed") {
+                      message =
+                      "Bạn đã xác nhận lịch hẹn của $userName ($petName) vào $time.";
+                    } else if (status == "cancelled") {
+                      message =
+                      "Lịch hẹn với $userName ($petName) vào $time đã bị hủy.";
+                    } else {
+                      message =
+                      "Cập nhật mới về lịch hẹn với $userName ($petName).";
+                    }
 
-                        // Nội dung thông báo cho bác sĩ
-                        String message;
-                        if (status == "pending") {
-                          message =
-                          "$userName đã đặt lịch cho $petName vào $time. Vui lòng xác nhận!";
-                        } else if (status == "confirmed") {
-                          message =
-                          "Bạn đã xác nhận lịch hẹn của $userName ($petName) vào $time.";
-                        } else if (status == "cancelled") {
-                          message =
-                          "Lịch hẹn với $userName ($petName) vào $time đã bị hủy.";
-                        } else {
-                          message =
-                          "Cập nhật mới về lịch hẹn với $userName ($petName).";
-                        }
-
-                        return _buildNotificationCard(
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            date == DateFormat('dd/MM/yyyy').format(DateTime.now())
+                                ? "Hôm nay"
+                                : date,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        _buildNotificationCard(
                           _getIconForStatus(status),
                           message,
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                        ),
+                      ],
+                    );
+                  },
                 );
-              }).toList(),
+              },
             );
           },
         ),
@@ -111,19 +110,43 @@ class VetNotificationScreen extends StatelessWidget {
     );
   }
 
-  /// Trả về icon phù hợp với trạng thái của lịch hẹn
-  IconData _getIconForStatus(String status) {
-    if (status == "pending") {
-      return LucideIcons.clock; // Đang chờ xác nhận
-    } else if (status == "confirmed") {
-      return LucideIcons.checkCircle; // Đã xác nhận
-    } else if (status == "cancelled") {
-      return LucideIcons.xCircle; // Đã hủy
+  /// Hàm lấy tên User và tên Pet từ Firestore
+  Future<Map<String, String>> _fetchUserAndPetInfo(String userId, String petId) async {
+    String userName = "Người dùng";
+    String petName = "Thú cưng";
+
+    try {
+      // Lấy userName từ Firestore
+      var userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      if (userSnapshot.exists) {
+        userName = userSnapshot.data()?['name'] ?? "Người dùng";
+      }
+
+      // Lấy petName từ Firestore
+      var petSnapshot = await FirebaseFirestore.instance.collection('pets').doc(petId).get();
+      if (petSnapshot.exists) {
+        petName = petSnapshot.data()?['petName'] ?? "Thú cưng";
+      }
+    } catch (e) {
+      print("Lỗi khi lấy thông tin user hoặc pet: $e");
     }
-    return LucideIcons.bell; // Mặc định
+
+    return {'userName': userName, 'petName': petName};
   }
 
-  /// Tạo thẻ thông báo UI
+  /// Icon phù hợp với trạng thái lịch hẹn
+  IconData _getIconForStatus(String status) {
+    if (status == "pending") {
+      return LucideIcons.clock;
+    } else if (status == "confirmed") {
+      return LucideIcons.checkCircle;
+    } else if (status == "cancelled") {
+      return LucideIcons.xCircle;
+    }
+    return LucideIcons.bell;
+  }
+
+  /// UI của thông báo
   Widget _buildNotificationCard(IconData icon, String text) {
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

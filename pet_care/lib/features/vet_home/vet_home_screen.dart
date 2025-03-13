@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pet_care/features/vet_home/chat_ui/vet_chat_screen.dart';
 import 'package:pet_care/features/vet_home/setting_ui/vet_account_screen.dart';
 import 'package:pet_care/features/vet_home/vet_booking_ui/vet_booking_screen.dart';
 import 'package:pet_care/features/vet_home/vet_home_ui/vet_home_main_screen.dart';
@@ -22,7 +23,7 @@ class _VetHomeScreenState extends State<VetHomeScreen> {
     VetHomeMainScreen(),
     VetBookingScreen(),
     VetRecordsScreen(vetId: FirebaseAuth.instance.currentUser?.uid ?? ""),
-    Center(child: Text('Chat')),
+    VetChatScreen(),
     VetAccountScreen(),
   ];
 
