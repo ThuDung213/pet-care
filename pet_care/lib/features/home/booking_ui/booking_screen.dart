@@ -174,7 +174,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       specialty: vet['specialization'] ?? "Không xác định",
                       rating: vet['rating'] ?? 0.0,
                       image: vet['avatar'] ?? "https://via.placeholder.com/150",
-                      petType: (vet['specialization']?.contains('chó') ?? false) ? 'Chó' : 'Mèo',
+                      petType: (vet['specialization']?.contains('chó') ?? vet['specialization']?.contains('Chó') ?? false) ? 'Chó' : 'Mèo',
                       isAvailable: vet['isAvailable'] ?? true,
                     ),
                   );

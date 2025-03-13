@@ -41,27 +41,21 @@ class VetBookingCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    specialty,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
+
                   SizedBox(height: 4),
                   Row(
                     children: [
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: petType == 'Chó' ? Colors.blue[50] : Colors.orange[50],
+                          color: specialty == 'Chó' ? Colors.blue[50] : Colors.orange[50],
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          petType,
+                          specialty,
                           style: TextStyle(
                             fontSize: 12,
-                            color: petType == 'Chó' ? Colors.blue : Colors.orange,
+                            color: specialty == 'Chó' ? Colors.blue : Colors.orange,
                           ),
                         ),
                       ),
