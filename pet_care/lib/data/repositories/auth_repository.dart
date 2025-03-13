@@ -1,11 +1,16 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../model/user_model.dart';
 import '../model/vet_model.dart';
+import 'package:http/http.dart' as http;
 
 class AuthRepository {
   final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static const String clientId = "8914f132dd10f2d";
 
   // Đăng ký người dùng
   Future<void> signUp(String email, String password, String name, String phone) async {
@@ -75,6 +80,33 @@ class AuthRepository {
       return null;
     } catch (e) {
       print("Lỗi khi lấy thông tin người dùng: $e");
+      return null;
+    }
+  }
+
+  Future<String?> _uploadImageToImgur(File imageFile) async {
+    try {
+      final bytes = await imageFile.readAsBytes();
+      final base64Image = base64Encode(bytes);
+      final response = await http.post(
+        Uri.parse("https://api.imgur.com/3/image"),
+        headers: {
+          "Authorization": "Client-ID $clientId",
+        },
+        body: {
+          "image": base64Image,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        return jsonData["data"]["link"];
+      } else {
+        print("Imgur upload failed: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("Error uploading image to Imgur: $e");
       return null;
     }
   }
