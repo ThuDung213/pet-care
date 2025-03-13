@@ -1,10 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:pet_care/data/model/add_pet.dart';
 import 'package:pet_care/data/repositories/complete_profile_repository.dart';
 import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/PetBreedSelectionScreen/pet_name_screen/pet_weight_screen/SpecialCharacteristicsScreen/SpecialDayScreen/CaretakerScreen/CompleteProfileScreen/PetProfileScreen/PetProfileScreen.dart';
-import 'package:pet_care/widgets/bottom_nav_bar.dart';
+
 
 class CompleteProfileScreen extends StatefulWidget {
   final String petType;
@@ -106,7 +105,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     children: [
                       const CircleAvatar(
                         radius: 20,
-                        backgroundImage: AssetImage("assets/avatar_placeholder.png"),
+                        backgroundImage: AssetImage("assets/avata_normal.png"),
                       ),
                       const SizedBox(width: 10),
                       Column(

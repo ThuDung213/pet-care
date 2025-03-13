@@ -5,6 +5,8 @@ import 'package:pet_care/data/repositories/pet_repository.dart';
 import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/add_pet_screen.dart';
 import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/PetBreedSelectionScreen/pet_name_screen/pet_weight_screen/SpecialCharacteristicsScreen/SpecialDayScreen/CaretakerScreen/CompleteProfileScreen/PetProfileScreen/PetProfileScreen.dart';
 
+import 'PetDiagnosis/PetDiagnosisScreen.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -161,12 +163,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
         pet.petBreed,
         style: const TextStyle(fontSize: 14, color: Colors.black54),
       ),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete, color: Colors.red),
-        onPressed: () async {
-          await petRepo.deletePet(pet.docId);
-        },
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Icon "document"
+          IconButton(
+            icon: const Icon(Icons.insert_drive_file, color: Colors.blue),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PetDiagnosisScreen(petId: pet.docId)),
+              );
+
+
+            },
+          ),
+
+          // Icon "delete"
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () async {
+              await petRepo.deletePet(pet.docId);
+            },
+          ),
+        ],
       ),
+
     );
   }
 }

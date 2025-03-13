@@ -19,7 +19,7 @@ class PetModel {
 
   });
 
-  // Chuyển đổi từ Map (Firestore) sang Object
+
   factory PetModel.fromMap(String id, Map<String, dynamic> data) {
     return PetModel(
       docId: id,
