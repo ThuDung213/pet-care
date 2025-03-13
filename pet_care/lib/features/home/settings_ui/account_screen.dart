@@ -145,6 +145,34 @@ class _AccountScreenState extends State<AccountScreen> {
     }
   }
 
+  void _showSignOutDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Xác nhận đăng xuất"),
+          content: const Text("Bạn có chắc chắn muốn đăng xuất không?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Hủy"),
+            ),
+            TextButton(
+              onPressed: () async {
+                await _auth.signOut();
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                      (Route<dynamic> route) => false,
+                );
+              },
+              child: const Text("Đăng xuất", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -232,12 +260,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () async {
-                      await _auth.signOut();
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => LoginScreen()),
-                      );
-                    },
+                    onPressed: _showSignOutDialog,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
