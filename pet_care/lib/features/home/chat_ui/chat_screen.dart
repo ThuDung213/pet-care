@@ -107,7 +107,7 @@ class _ChatScreenState extends State<ChatScreen> {
           image: DecorationImage(
               colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.8), BlendMode.dstATop),
               image: NetworkImage(
-                  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEigDbiBM6I5Fx1Jbz-hj_mqL_KtAPlv9UsQwpthZIfFLjL-hvCmst09I-RbQsbVt5Z0QzYI_Xj1l8vkS8JrP6eUlgK89GJzbb_P-BwLhVP13PalBm8ga1hbW5pVx8bswNWCjqZj2XxTFvwQ__u4ytDKvfFi5I2W9MDtH3wFXxww19EVYkN8IzIDJLh_aw/s1920/space-soldier-ai-wallpaper-4k.webp'),
+                'https://i.pinimg.com/736x/30/de/7d/30de7d6fc72a64c543a6f26ba025911a.jpg'),
               fit: BoxFit.cover),
         ),
         child: Column(
@@ -128,7 +128,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Expanded(
                     flex: 15,
                     child: TextFormField(
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.black),
                       controller: _userInput,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(

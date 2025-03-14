@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pet_care/data/model/pet_list.dart';
 import 'package:pet_care/data/repositories/pet_repository.dart';
+import 'package:pet_care/features/home/pet_profile_ui/PetDiagnosisList/PetDiagnosisListScreen.dart';
 import 'package:pet_care/features/home/pet_profile_ui/add_pet_screen/add_pet_screen.dart';
 import '../../../data/model/user_model.dart';
 import '../../../data/repositories/user_repository.dart';
 import '../notification_ui/notification_screen.dart';
-import 'PetDiagnosis/PetDiagnosisScreen.dart';
+import 'PetDiagnosisList/PetDiagnosis/PetDiagnosisScreen.dart';
 import 'add_pet_screen/PetBreedSelectionScreen/pet_name_screen/pet_weight_screen/SpecialCharacteristicsScreen/SpecialDayScreen/CaretakerScreen/CompleteProfileScreen/PetProfileScreen/PetProfileScreen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -191,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => PetDiagnosisScreen(petId: pet.docId)),
+                MaterialPageRoute(builder: (context) => PetDiagnosisListScreen(petId: pet.docId)),
               );
             },
           ),
