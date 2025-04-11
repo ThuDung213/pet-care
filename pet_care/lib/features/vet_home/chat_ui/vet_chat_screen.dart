@@ -15,7 +15,7 @@ class VetChatScreen extends StatefulWidget {
 
 class _VetChatScreenState extends State<VetChatScreen> {
   TextEditingController _userInput = TextEditingController();
-  static const apiKey = "AIzaSyBIiyjHQkav93Zt2GXe6qVedp0TjUsP-rM";
+  static const apiKey = "apiKey"; // Replace with actual API key
   final model = GenerativeModel(model: 'gemini-2.0-flash', apiKey: apiKey);
   final List<Message> _messages = [];
   final _auth = FirebaseAuth.instance;
